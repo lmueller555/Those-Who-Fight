@@ -6,6 +6,7 @@ import pygame
 BASE_DIR = Path(__file__).resolve().parent
 ASSETS_DIR = BASE_DIR / "Cute_Fantasy_Free" / "Player"
 PLAYER_SHEET = ASSETS_DIR / "Player.png"
+TOWN_ASSETS_DIR = BASE_DIR / "Cute_Fantasy"
 
 BASE_WIDTH = 800
 BASE_HEIGHT = 600
@@ -121,6 +122,342 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(center=self.rect.center)
 
 
+class TownMap:
+    def __init__(self, scale_factor: float):
+        self.scale_factor = scale_factor
+        self.tile_size = int(TILE_SIZE * BASE_SCALE * scale_factor)
+        self.columns = 25
+        self.rows = 27
+        self.map_size = (
+            self.columns * self.tile_size,
+            self.rows * self.tile_size,
+        )
+        self.surface = pygame.Surface(self.map_size, pygame.SRCALPHA)
+        self._load_assets()
+        self._build_map()
+
+    def _load_image(self, relative_path: str) -> pygame.Surface:
+        image_path = TOWN_ASSETS_DIR / relative_path
+        if not image_path.exists():
+            raise FileNotFoundError(f"Missing town asset: {image_path}")
+        return pygame.image.load(image_path).convert_alpha()
+
+    def _scale(self, surface: pygame.Surface) -> pygame.Surface:
+        return pygame.transform.scale(
+            surface,
+            (
+                int(surface.get_width() * BASE_SCALE * self.scale_factor),
+                int(surface.get_height() * BASE_SCALE * self.scale_factor),
+            ),
+        )
+
+    def _load_assets(self) -> None:
+        grass_tiles = SpriteSheet(
+            TOWN_ASSETS_DIR / "Tiles" / "Grass" / "Grass_Tiles_1.png",
+            TILE_SIZE,
+            TILE_SIZE,
+        )
+        cobble_tiles = SpriteSheet(
+            TOWN_ASSETS_DIR / "Tiles" / "Cobble_Road" / "Cobble_Road_1.png",
+            TILE_SIZE,
+            TILE_SIZE,
+        )
+        farmland_tiles = SpriteSheet(
+            TOWN_ASSETS_DIR / "Tiles" / "FarmLand" / "FarmLand_Tile.png",
+            TILE_SIZE,
+            TILE_SIZE,
+        )
+        water_tiles = SpriteSheet(
+            TOWN_ASSETS_DIR / "Tiles" / "Water" / "Water_Tile_1.png",
+            TILE_SIZE,
+            TILE_SIZE,
+        )
+        self.grass_tile = self._scale(grass_tiles.get_frame(0, 0))
+        self.road_tile = self._scale(cobble_tiles.get_frame(0, 0))
+        self.farmland_tile = self._scale(farmland_tiles.get_frame(0, 0))
+        self.water_tile = self._scale(water_tiles.get_frame(0, 0))
+        self.bridge = self._scale(
+            self._load_image("Tiles/Bridge/Bridge_Stone_Horizontal.png")
+        )
+
+        self.buildings = {
+            "inn": self._scale(
+                self._load_image(
+                    "Buildings/Buildings/Unique_Buildings/Inn/Inn_Blue.png"
+                )
+            ),
+            "blacksmith": self._scale(
+                self._load_image(
+                    "Buildings/Buildings/Unique_Buildings/Blacksmith_House/"
+                    "Blacksmith_House_Red.png"
+                )
+            ),
+            "barn": self._scale(
+                self._load_image(
+                    "Buildings/Buildings/Unique_Buildings/Barn/Barn_Base_Red.png"
+                )
+            ),
+            "silo": self._scale(
+                self._load_image(
+                    "Buildings/Buildings/Unique_Buildings/Silo/Silo.png"
+                )
+            ),
+            "windmill": self._scale(
+                self._load_image(
+                    "Buildings/Buildings/Unique_Buildings/Windmill/Windmill.png"
+                )
+            ),
+            "house_1": self._scale(
+                self._load_image(
+                    "Buildings/Buildings/Houses/Wood/House_1_Wood_Base_Red.png"
+                )
+            ),
+            "house_2": self._scale(
+                self._load_image(
+                    "Buildings/Buildings/Houses/Wood/House_2_Wood_Green_Blue.png"
+                )
+            ),
+            "house_3": self._scale(
+                self._load_image(
+                    "Buildings/Buildings/Houses/Wood/House_3_Wood_Red_Black.png"
+                )
+            ),
+            "house_4": self._scale(
+                self._load_image(
+                    "Buildings/Buildings/Houses/Wood/House_4_Wood_Base_Blue.png"
+                )
+            ),
+            "house_5": self._scale(
+                self._load_image(
+                    "Buildings/Buildings/Houses/Wood/House_5_Wood_Green_Red.png"
+                )
+            ),
+            "stalls": self._scale(
+                self._load_image(
+                    "Buildings/Buildings/Unique_Buildings/Stalls/Market_Stalls.png"
+                )
+            ),
+        }
+
+        self.props = {
+            "fountain": self._scale(
+                self._load_image("Outdoor decoration/Fountain.png")
+            ),
+            "benches": self._scale(
+                self._load_image("Outdoor decoration/Benches.png")
+            ),
+            "lantern": self._scale(
+                self._load_image("Outdoor decoration/Lanter_Posts.png")
+            ),
+            "flowers": self._scale(
+                self._load_image("Outdoor decoration/Flowers.png")
+            ),
+            "barrels": self._scale(
+                self._load_image("Outdoor decoration/barrels.png")
+            ),
+            "well": self._scale(self._load_image("Outdoor decoration/Well.png")),
+            "signs": self._scale(self._load_image("Outdoor decoration/Signs.png")),
+            "fence": self._scale(self._load_image("Outdoor decoration/Fences.png")),
+            "white_fence": self._scale(
+                self._load_image("Outdoor decoration/White_Fence.png")
+            ),
+            "picnic_blanket": self._scale(
+                self._load_image("Tiles/Picnic_Blankets.png")
+            ),
+            "picnic_basket": self._scale(
+                self._load_image("Outdoor decoration/Picnic_Basket.png")
+            ),
+            "water_trough": self._scale(
+                self._load_image("Outdoor decoration/Water_Troughs.png")
+            ),
+            "hay": self._scale(
+                self._load_image("Outdoor decoration/Hay_Bales.png")
+            ),
+            "scarecrow": self._scale(
+                self._load_image("Outdoor decoration/Scarecrows.png")
+            ),
+        }
+
+        self.npc_sprites = {
+            "farmer": self._scale(
+                self._load_image("NPCs (Premade)/Farmer_Bob.png")
+            ),
+            "fisher": self._scale(
+                self._load_image("NPCs (Premade)/Fisherman_Fin.png")
+            ),
+            "bartender": self._scale(
+                self._load_image("NPCs (Premade)/Bartender_Bruno.png")
+            ),
+            "miner": self._scale(
+                self._load_image("NPCs (Premade)/Miner_Mike.png")
+            ),
+            "chef": self._scale(
+                self._load_image("NPCs (Premade)/Chef_Chloe.png")
+            ),
+        }
+
+        trees = {
+            "oak": self._scale(self._load_image("Trees/Big_Oak_Tree.png")),
+            "birch": self._scale(self._load_image("Trees/Medium_Birch_Tree.png")),
+            "spruce": self._scale(self._load_image("Trees/Small_Spruce_Tree.png")),
+        }
+        self.trees = trees
+
+        crops = SpriteSheet(
+            TOWN_ASSETS_DIR / "Crops" / "Crops.png", TILE_SIZE, TILE_SIZE
+        )
+        crops_alt = SpriteSheet(
+            TOWN_ASSETS_DIR / "Crops" / "Crops_2.png", TILE_SIZE, TILE_SIZE
+        )
+        self.crop_tiles = [
+            self._scale(crops.get_frame(0, 0)),
+            self._scale(crops.get_frame(1, 0)),
+            self._scale(crops_alt.get_frame(0, 0)),
+            self._scale(crops_alt.get_frame(1, 0)),
+        ]
+
+    def _blit_tile(self, tile: pygame.Surface, grid_x: int, grid_y: int) -> None:
+        self.surface.blit(tile, (grid_x * self.tile_size, grid_y * self.tile_size))
+
+    def _blit_object(
+        self,
+        sprite: pygame.Surface,
+        grid_x: int,
+        grid_y: int,
+        anchor: str = "midbottom",
+    ) -> None:
+        x = grid_x * self.tile_size + self.tile_size // 2
+        y = grid_y * self.tile_size + self.tile_size
+        rect = sprite.get_rect()
+        setattr(rect, anchor, (x, y))
+        self.surface.blit(sprite, rect.topleft)
+
+    def _build_map(self) -> None:
+        for y in range(self.rows):
+            for x in range(self.columns):
+                self._blit_tile(self.grass_tile, x, y)
+
+        loop_left, loop_right = 6, 18
+        loop_top, loop_bottom = 7, 20
+        for x in range(loop_left, loop_right + 1):
+            self._blit_tile(self.road_tile, x, loop_top)
+            self._blit_tile(self.road_tile, x, loop_bottom)
+        for y in range(loop_top, loop_bottom + 1):
+            self._blit_tile(self.road_tile, loop_left, y)
+            self._blit_tile(self.road_tile, loop_right, y)
+
+        center_x = self.columns // 2
+        for y in range(loop_bottom + 1, self.rows):
+            if y >= loop_bottom + 1:
+                self._blit_tile(self.road_tile, center_x, y)
+
+        plaza_left, plaza_top = 10, 10
+        for y in range(plaza_top, plaza_top + 5):
+            for x in range(plaza_left, plaza_left + 5):
+                self._blit_tile(self.road_tile, x, y)
+
+        for x in range(plaza_left + 2, plaza_left + 3):
+            for y in range(loop_top - 2, plaza_top):
+                self._blit_tile(self.road_tile, x, y)
+
+        for x in range(loop_right + 1, loop_right + 4):
+            self._blit_tile(self.road_tile, x, 13)
+        for x in range(loop_left - 3, loop_left):
+            self._blit_tile(self.road_tile, x, 13)
+        for y in range(loop_bottom + 1, loop_bottom + 4):
+            self._blit_tile(self.road_tile, 15, y)
+
+        for x in range(16, 20):
+            for y in range(19, 23):
+                self._blit_tile(self.farmland_tile, x, y)
+
+        for x in range(19, 22):
+            for y in range(10, 13):
+                self._blit_tile(self.water_tile, x, y)
+        self.surface.blit(
+            self.bridge,
+            (
+                19 * self.tile_size,
+                11 * self.tile_size,
+            ),
+        )
+
+        self._blit_object(self.buildings["inn"], 16, 12)
+        self._blit_object(self.props["signs"], 15, 13)
+        self._blit_object(self.buildings["blacksmith"], 6, 12)
+        self._blit_object(self.props["signs"], 7, 13)
+        self._blit_object(self.buildings["stalls"], 12, 7)
+        self._blit_object(self.buildings["house_1"], 14, 8)
+        self._blit_object(self.buildings["house_2"], 16, 8)
+        self._blit_object(self.buildings["house_3"], 8, 8)
+        self._blit_object(self.buildings["house_4"], 6, 8)
+        self._blit_object(self.buildings["house_5"], 6, 18)
+        self._blit_object(self.props["well"], 8, 9)
+
+        self._blit_object(self.buildings["barn"], 17, 18)
+        self._blit_object(self.buildings["silo"], 20, 18)
+        self._blit_object(self.props["water_trough"], 18, 20)
+        self._blit_object(self.props["hay"], 19, 20)
+        self._blit_object(self.props["scarecrow"], 20, 22)
+
+        crop_index = 0
+        for y in range(20, 23):
+            for x in range(16, 19):
+                self._blit_tile(self.crop_tiles[crop_index % len(self.crop_tiles)], x, y)
+                crop_index += 1
+
+        self._blit_object(self.buildings["windmill"], 20, 6)
+
+        self._blit_object(self.props["fountain"], 12, 12)
+        self._blit_object(self.props["benches"], 11, 11)
+        self._blit_object(self.props["benches"], 11, 14)
+        self._blit_object(self.props["lantern"], 10, 10)
+        self._blit_object(self.props["lantern"], 14, 10)
+        self._blit_object(self.props["lantern"], 10, 14)
+        self._blit_object(self.props["lantern"], 14, 14)
+        self._blit_object(self.props["flowers"], 9, 12)
+        self._blit_object(self.props["flowers"], 15, 12)
+        self._blit_object(self.props["barrels"], 15, 13)
+        self._blit_object(self.props["picnic_blanket"], 7, 7)
+        self._blit_object(self.props["picnic_basket"], 8, 7)
+
+        self._blit_object(self.npc_sprites["farmer"], 18, 21)
+        self._blit_object(self.npc_sprites["fisher"], 20, 13)
+        self._blit_object(self.npc_sprites["bartender"], 16, 14)
+        self._blit_object(self.npc_sprites["miner"], 7, 14)
+        self._blit_object(self.npc_sprites["chef"], 12, 9)
+
+        for x in range(2, self.columns - 2, 4):
+            self._blit_object(self.trees["oak"], x, 4)
+        for y in range(2, self.rows - 4, 4):
+            self._blit_object(self.trees["birch"], 2, y)
+        for y in range(4, self.rows - 2, 4):
+            self._blit_object(self.trees["spruce"], self.columns - 3, y)
+
+        for x in range(15, 22):
+            self._blit_object(self.props["white_fence"], x, 17)
+        for y in range(18, 23):
+            self._blit_object(self.props["fence"], 15, y)
+
+    def draw(self, screen: pygame.Surface, offset: pygame.Vector2) -> None:
+        screen.blit(self.surface, (-offset.x, -offset.y))
+
+
+class Camera:
+    def __init__(self, screen_size: tuple[int, int], map_size: tuple[int, int]):
+        self.screen_width, self.screen_height = screen_size
+        self.map_width, self.map_height = map_size
+        self.offset = pygame.Vector2(0, 0)
+
+    def update(self, target_rect: pygame.Rect) -> None:
+        desired_x = target_rect.centerx - self.screen_width / 2
+        desired_y = target_rect.centery - self.screen_height / 2
+        max_x = max(0, self.map_width - self.screen_width)
+        max_y = max(0, self.map_height - self.screen_height)
+        self.offset.x = max(0, min(desired_x, max_x))
+        self.offset.y = max(0, min(desired_y, max_y))
+
+
 def _get_scale_factor(screen_size: tuple[int, int]) -> float:
     width, height = screen_size
     width_scale = width / BASE_WIDTH
@@ -148,12 +485,13 @@ def main() -> None:
         raise FileNotFoundError(f"Missing sprite sheet: {PLAYER_SHEET}")
 
     sprite_sheet = SpriteSheet(PLAYER_SHEET, TILE_SIZE, TILE_SIZE)
-    player = Player(
-        sprite_sheet,
-        pygame.Vector2(screen_size[0] / 2, screen_size[1] / 2),
-        scale_factor,
+    town_map = TownMap(scale_factor)
+    start_position = pygame.Vector2(
+        town_map.map_size[0] / 2,
+        town_map.map_size[1] - town_map.tile_size * 2,
     )
-    all_sprites = pygame.sprite.Group(player)
+    player = Player(sprite_sheet, start_position, scale_factor)
+    camera = Camera(screen_size, town_map.map_size)
 
     running = True
     while running:
@@ -164,10 +502,18 @@ def main() -> None:
 
         keys = pygame.key.get_pressed()
         player.handle_input(keys)
-        all_sprites.update(delta_time)
+        player.update(delta_time)
+        player.rect.clamp_ip(
+            pygame.Rect(0, 0, town_map.map_size[0], town_map.map_size[1])
+        )
+        camera.update(player.rect)
 
         screen.fill((40, 45, 55))
-        all_sprites.draw(screen)
+        town_map.draw(screen, camera.offset)
+        screen.blit(
+            player.image,
+            (player.rect.x - camera.offset.x, player.rect.y - camera.offset.y),
+        )
         pygame.display.flip()
 
     pygame.quit()
