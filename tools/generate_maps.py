@@ -21,9 +21,13 @@ TILES = {
     "tree_canopy": 13,
     "bridge": 14,
     "statue": 15,
+    "grass_variant": 16,
     "interior_floor": 20,
     "interior_wall": 21,
     "interior_rug": 22,
+    "cathedral_wall": 23,
+    "cathedral_roof": 24,
+    "cathedral_steps": 25,
 }
 
 
@@ -50,11 +54,13 @@ def outline_rect(layer, width, x, y, w, h, tile_id):
         layer[index(width, x + w - 1, yy)] = tile_id
 
 
-def place_building(layers, width, x, y, w, h, door_x):
+def place_building(layers, width, x, y, w, h, door_x, wall_tile=None, roof_tile=None):
     structures = layers["structures"]
     overhead = layers["overhead"]
-    outline_rect(structures, width, x, y, w, h, TILES["wall"])
-    fill_rect(overhead, width, x, y, w, h, TILES["roof"])
+    wall_tile = wall_tile or TILES["wall"]
+    roof_tile = roof_tile or TILES["roof"]
+    outline_rect(structures, width, x, y, w, h, wall_tile)
+    fill_rect(overhead, width, x, y, w, h, roof_tile)
     structures[index(width, door_x, y + h - 1)] = TILES["door"]
 
 
@@ -73,38 +79,44 @@ def generate_town():
     }
 
     road_x = width // 2 - 2
-    fill_rect(layers["ground"], width, road_x, 4, 4, 120, TILES["road"])
-
-    plaza_x, plaza_y = 54, 64
-    plaza_w, plaza_h = 20, 14
+    plaza_x, plaza_y = 54, 62
+    plaza_w, plaza_h = 20, 20
     fill_rect(layers["ground"], width, plaza_x, plaza_y, plaza_w, plaza_h, TILES["plaza"])
-
-    fill_rect(layers["ground"], width, road_x, plaza_y - 12, 4, 12, TILES["road"])
+    fill_rect(layers["ground"], width, road_x, plaza_y + plaza_h, 4, height - (plaza_y + plaza_h), TILES["road"])
 
     fountain_x, fountain_y = width // 2 - 2, plaza_y + 4
     fill_rect(layers["details"], width, fountain_x, fountain_y, 4, 4, TILES["water"])
 
-    inn = (40, 62, 14, 10)
+    inn = (36, 52, 16, 12)
     place_building(layers, width, *inn, door_x=inn[0] + inn[2] // 2)
 
-    item_shop = (26, 60, 10, 8)
+    item_shop = (24, 68, 10, 8)
     place_building(layers, width, *item_shop, door_x=item_shop[0] + item_shop[2] // 2)
 
-    weapon_shop = (82, 60, 10, 8)
+    weapon_shop = (94, 68, 10, 8)
     place_building(layers, width, *weapon_shop, door_x=weapon_shop[0] + weapon_shop[2] // 2)
 
-    cathedral = (53, 30, 22, 16)
-    place_building(layers, width, *cathedral, door_x=cathedral[0] + cathedral[2] // 2)
+    cathedral = (50, 28, 28, 20)
+    place_building(
+        layers,
+        width,
+        *cathedral,
+        door_x=cathedral[0] + cathedral[2] // 2,
+        wall_tile=TILES["cathedral_wall"],
+        roof_tile=TILES["cathedral_roof"],
+    )
 
-    fill_rect(layers["ground"], width, cathedral[0] - 2, cathedral[1] + cathedral[3], cathedral[2] + 4, 4, TILES["road"])
     fence_x = cathedral[0] - 3
-    fence_y = cathedral[1] - 2
+    fence_y = cathedral[1] - 3
     fence_w = cathedral[2] + 6
-    fence_h = cathedral[3] + 8
+    fence_h = cathedral[3] + 10
     outline_rect(layers["structures"], width, fence_x, fence_y, fence_w, fence_h, TILES["fence"])
     gate_x = cathedral[0] + cathedral[2] // 2
     layers["structures"][index(width, gate_x, fence_y + fence_h - 1)] = TILES["empty"]
     layers["structures"][index(width, gate_x + 1, fence_y + fence_h - 1)] = TILES["empty"]
+    steps_y = cathedral[1] + cathedral[3]
+    fill_rect(layers["details"], width, gate_x - 1, steps_y, 4, 2, TILES["cathedral_steps"])
+    fill_rect(layers["ground"], width, road_x, fence_y + fence_h, 4, plaza_y - (fence_y + fence_h), TILES["road"])
     layers["structures"][index(width, cathedral[0] + 3, cathedral[1] + cathedral[3] + 1)] = TILES["statue"]
     layers["structures"][index(width, cathedral[0] + cathedral[2] - 4, cathedral[1] + cathedral[3] + 1)] = TILES["statue"]
 
@@ -351,8 +363,8 @@ def generate_town():
 
 def generate_interior(
     name,
-    width=16,
-    height=12,
+    width=24,
+    height=18,
     npc_id="npc_interior",
     spawn_id=None,
     return_map="Hearthvale_Town",
@@ -433,8 +445,8 @@ def main():
         name = f"Hearthvale_House_{idx:02d}"
         interior = generate_interior(
             name,
-            width=14,
-            height=10,
+            width=20,
+            height=14,
             npc_id=f"npc_house_{idx:02d}",
             spawn_id="spawn_house_entry",
             return_spawn=f"spawn_house_{idx:02d}_exit",
