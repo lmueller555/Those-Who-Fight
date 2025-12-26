@@ -128,9 +128,17 @@ def _get_scale_factor(screen_size: tuple[int, int]) -> float:
     return min(width_scale, height_scale)
 
 
+def _get_display_size() -> tuple[int, int]:
+    info = pygame.display.Info()
+    if info.current_w > 0 and info.current_h > 0:
+        return info.current_w, info.current_h
+    return BASE_WIDTH, BASE_HEIGHT
+
+
 def main() -> None:
     pygame.init()
-    screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN | pygame.SCALED)
+    display_size = _get_display_size()
+    screen = pygame.display.set_mode(display_size, pygame.FULLSCREEN | pygame.SCALED)
     pygame.display.set_caption("Those Who Fight")
     clock = pygame.time.Clock()
     screen_size = screen.get_size()
