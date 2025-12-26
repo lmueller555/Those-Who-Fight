@@ -1,0 +1,29 @@
+{
+  "id": "overworld_tileset_v1",
+  "version": 1,
+  "tile_size": 16,
+  "atlas": {
+    "type": "sprite_key"
+  },
+  "tiles": [
+    {"id": 0, "key": "empty", "solid": false, "glyph": " "},
+    {"id": 1, "key": "grass", "solid": false, "glyph": ".", "tags": ["ground"]},
+    {"id": 2, "key": "road", "solid": false, "glyph": "=", "tags": ["road"]},
+    {"id": 3, "key": "dirt", "solid": false, "glyph": ":", "tags": ["ground"]},
+    {"id": 4, "key": "water", "solid": true, "glyph": "~", "tags": ["water"]},
+    {"id": 5, "key": "fence", "solid": true, "glyph": "|", "tags": ["fence"]},
+    {"id": 6, "key": "wall", "solid": true, "glyph": "#", "tags": ["wall"]},
+    {"id": 7, "key": "roof", "solid": true, "glyph": "^", "tags": ["roof"]},
+    {"id": 8, "key": "door", "solid": false, "glyph": "+", "tags": ["door"]},
+    {"id": 9, "key": "path_edge", "solid": false, "glyph": ",", "tags": ["detail"]},
+    {"id": 10, "key": "plaza_stone", "solid": false, "glyph": "*", "tags": ["plaza"]},
+    {"id": 11, "key": "flower", "solid": false, "glyph": "'", "tags": ["detail"]},
+    {"id": 12, "key": "tree_trunk", "solid": true, "glyph": "T", "tags": ["tree"]},
+    {"id": 13, "key": "tree_canopy", "solid": true, "glyph": "Y", "tags": ["tree", "overhead"]},
+    {"id": 14, "key": "bridge", "solid": false, "glyph": "=", "tags": ["bridge"]},
+    {"id": 15, "key": "statue", "solid": true, "glyph": "&", "tags": ["decor"]},
+    {"id": 20, "key": "interior_floor", "solid": false, "glyph": ".", "tags": ["interior"]},
+    {"id": 21, "key": "interior_wall", "solid": true, "glyph": "#", "tags": ["interior"]},
+    {"id": 22, "key": "interior_rug", "solid": false, "glyph": "*", "tags": ["interior"]}
+  ]
+}
