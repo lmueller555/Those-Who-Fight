@@ -1,29 +1,189 @@
 {
   "id": "overworld_tileset_v1",
-  "version": 1,
+  "version": 2,
   "tile_size": 16,
   "atlas": {
-    "type": "sprite_key"
+    "type": "uv",
+    "tile_size": 16,
+    "notes": "UV coordinates are in 16x16 tile units; atlas_image is per-tile to support multiple sprite sheets."
   },
-  "tiles": [
-    {"id": 0, "key": "empty", "solid": false, "glyph": " "},
-    {"id": 1, "key": "grass", "solid": false, "glyph": ".", "tags": ["ground"]},
-    {"id": 2, "key": "road", "solid": false, "glyph": "=", "tags": ["road"]},
-    {"id": 3, "key": "dirt", "solid": false, "glyph": ":", "tags": ["ground"]},
-    {"id": 4, "key": "water", "solid": true, "glyph": "~", "tags": ["water"]},
-    {"id": 5, "key": "fence", "solid": true, "glyph": "|", "tags": ["fence"]},
-    {"id": 6, "key": "wall", "solid": true, "glyph": "#", "tags": ["wall"]},
-    {"id": 7, "key": "roof", "solid": true, "glyph": "^", "tags": ["roof"]},
-    {"id": 8, "key": "door", "solid": false, "glyph": "+", "tags": ["door"]},
-    {"id": 9, "key": "path_edge", "solid": false, "glyph": ",", "tags": ["detail"]},
-    {"id": 10, "key": "plaza_stone", "solid": false, "glyph": "*", "tags": ["plaza"]},
-    {"id": 11, "key": "flower", "solid": false, "glyph": "'", "tags": ["detail"]},
-    {"id": 12, "key": "tree_trunk", "solid": true, "glyph": "T", "tags": ["tree"]},
-    {"id": 13, "key": "tree_canopy", "solid": true, "glyph": "Y", "tags": ["tree", "overhead"]},
-    {"id": 14, "key": "bridge", "solid": false, "glyph": "=", "tags": ["bridge"]},
-    {"id": 15, "key": "statue", "solid": true, "glyph": "&", "tags": ["decor"]},
-    {"id": 20, "key": "interior_floor", "solid": false, "glyph": ".", "tags": ["interior"]},
-    {"id": 21, "key": "interior_wall", "solid": true, "glyph": "#", "tags": ["interior"]},
-    {"id": 22, "key": "interior_rug", "solid": false, "glyph": "*", "tags": ["interior"]}
-  ]
+  "tiles": {
+    "0": {"name": "empty", "solid": false, "glyph": " ", "tags": []},
+    "1": {
+      "name": "grass",
+      "solid": false,
+      "glyph": ".",
+      "tags": ["ground"],
+      "atlas_image": "Cute_Fantasy/Tiles/Grass/Grass_1_Middle.png",
+      "uv": [0, 0]
+    },
+    "2": {
+      "name": "road",
+      "solid": false,
+      "glyph": "=",
+      "tags": ["road"],
+      "atlas_image": "Cute_Fantasy/Tiles/Cobble_Road/Cobble_Road_1.png",
+      "uv": [1, 2]
+    },
+    "3": {
+      "name": "dirt",
+      "solid": false,
+      "glyph": ":",
+      "tags": ["ground", "road"],
+      "atlas_image": "Cute_Fantasy/Tiles/Grass/Path_Middle.png",
+      "uv": [0, 0]
+    },
+    "4": {
+      "name": "water",
+      "solid": true,
+      "glyph": "~",
+      "tags": ["water"],
+      "atlas_image": "Cute_Fantasy/Tiles/Water/Water_Middle.png",
+      "uv": [0, 0]
+    },
+    "5": {
+      "name": "fence",
+      "solid": true,
+      "glyph": "|",
+      "tags": ["fence"],
+      "atlas_image": "Cute_Fantasy/Outdoor decoration/Fences.png",
+      "uv": [1, 2]
+    },
+    "6": {
+      "name": "wall",
+      "solid": true,
+      "glyph": "#",
+      "tags": ["wall"],
+      "atlas_image": "Cute_Fantasy/Tiles/Wooden_Deck_Tiles.png",
+      "uv": [0, 4]
+    },
+    "7": {
+      "name": "roof",
+      "solid": true,
+      "glyph": "^",
+      "tags": ["roof"],
+      "atlas_image": "Cute_Fantasy/Tiles/Wooden_Deck_Tiles.png",
+      "uv": [2, 0]
+    },
+    "8": {
+      "name": "door",
+      "solid": false,
+      "glyph": "+",
+      "tags": ["door"],
+      "atlas_image": "Cute_Fantasy/Buildings/House_Decor/Doors.png",
+      "uv": [0, 0]
+    },
+    "9": {
+      "name": "path_edge",
+      "solid": false,
+      "glyph": ",",
+      "tags": ["detail"],
+      "atlas_image": "Cute_Fantasy/Tiles/Grass/Path_Decoration.png",
+      "uv": [1, 0]
+    },
+    "10": {
+      "name": "plaza_stone",
+      "solid": false,
+      "glyph": "*",
+      "tags": ["plaza"],
+      "atlas_image": "Cute_Fantasy/Tiles/Pavement_Tiles.png",
+      "uv": [4, 3]
+    },
+    "11": {
+      "name": "flower",
+      "solid": false,
+      "glyph": "'",
+      "tags": ["detail"],
+      "atlas_image": "Cute_Fantasy/Outdoor decoration/Flowers.png",
+      "uv": [2, 2]
+    },
+    "12": {
+      "name": "tree_trunk",
+      "solid": true,
+      "glyph": "T",
+      "tags": ["tree"],
+      "atlas_image": "Cute_Fantasy/Outdoor decoration/Outdoor_Decor.png",
+      "uv": [0, 6]
+    },
+    "13": {
+      "name": "tree_canopy",
+      "solid": false,
+      "glyph": "Y",
+      "tags": ["tree", "overhead"],
+      "atlas_image": "Cute_Fantasy/Outdoor decoration/Outdoor_Decor.png",
+      "uv": [1, 6]
+    },
+    "14": {
+      "name": "bridge",
+      "solid": false,
+      "glyph": "=",
+      "tags": ["bridge"],
+      "atlas_image": "Cute_Fantasy/Tiles/Bridge/Bridge_Wood.png",
+      "uv": [1, 1]
+    },
+    "15": {
+      "name": "statue",
+      "solid": true,
+      "glyph": "&",
+      "tags": ["decor"],
+      "atlas_image": "Cute_Fantasy/Outdoor decoration/Outdoor_Decor.png",
+      "uv": [3, 5]
+    },
+    "16": {
+      "name": "grass_variant",
+      "solid": false,
+      "glyph": ".",
+      "tags": ["ground", "variant"],
+      "atlas_image": "Cute_Fantasy/Tiles/Grass/Grass_2_Middle.png",
+      "uv": [0, 0]
+    },
+    "20": {
+      "name": "interior_floor",
+      "solid": false,
+      "glyph": ".",
+      "tags": ["interior"],
+      "atlas_image": "Cute_Fantasy/Buildings/Houses_Interiors/Wood_Floor_Tiles.png",
+      "uv": [0, 0]
+    },
+    "21": {
+      "name": "interior_wall",
+      "solid": true,
+      "glyph": "#",
+      "tags": ["interior"],
+      "atlas_image": "Cute_Fantasy/Buildings/Houses_Interiors/Interior_Walls.png",
+      "uv": [0, 0]
+    },
+    "22": {
+      "name": "interior_rug",
+      "solid": false,
+      "glyph": "*",
+      "tags": ["interior"],
+      "atlas_image": "Cute_Fantasy/Tiles/Picnic_Blankets.png",
+      "uv": [1, 1]
+    },
+    "23": {
+      "name": "cathedral_wall",
+      "solid": true,
+      "glyph": "#",
+      "tags": ["wall", "cathedral"],
+      "atlas_image": "Cute_Fantasy/Tiles/Cliff/Stone_Cliff_1_Tile.png",
+      "uv": [3, 2]
+    },
+    "24": {
+      "name": "cathedral_roof",
+      "solid": true,
+      "glyph": "^",
+      "tags": ["roof", "cathedral"],
+      "atlas_image": "Cute_Fantasy/Tiles/Cliff/Stone_Cliff_2_Tile.png",
+      "uv": [4, 1]
+    },
+    "25": {
+      "name": "cathedral_steps",
+      "solid": false,
+      "glyph": ":",
+      "tags": ["cathedral", "detail"],
+      "atlas_image": "Cute_Fantasy/Tiles/Pavement_Tiles.png",
+      "uv": [4, 4]
+    }
+  }
 }

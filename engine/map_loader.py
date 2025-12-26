@@ -1,7 +1,7 @@
 import json
 from dataclasses import dataclass
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict, List, Optional, Tuple
 
 from engine.entity_system import Entity
 
@@ -9,10 +9,20 @@ from engine.entity_system import Entity
 @dataclass
 class TilesetTile:
     tile_id: int
-    key: str
+    name: str
     solid: bool
     glyph: str
     tags: List[str]
+    atlas_image: Optional[str] = None
+    uv: Optional[Tuple[int, int]] = None
+    sprite_key: Optional[str] = None
+
+
+@dataclass(frozen=True)
+class TileSprite:
+    atlas_image: Optional[str]
+    uv: Optional[Tuple[int, int]]
+    sprite_key: Optional[str]
 
 
 @dataclass
@@ -32,6 +42,16 @@ class Tileset:
         if tile is None:
             return "?"
         return tile.glyph
+
+    def sprite(self, tile_id: int) -> TileSprite:
+        tile = self.tiles.get(tile_id)
+        if tile is None:
+            return TileSprite(atlas_image=None, uv=None, sprite_key=None)
+        return TileSprite(
+            atlas_image=tile.atlas_image,
+            uv=tile.uv,
+            sprite_key=tile.sprite_key,
+        )
 
 
 @dataclass
@@ -97,14 +117,26 @@ class MapLoader:
         data = json.loads(tileset_path.read_text())
         tile_size = int(data["tile_size"])
         tiles = {}
-        for tile in data["tiles"]:
-            tile_id = int(tile["id"])
+        tiles_data = data["tiles"]
+        if isinstance(tiles_data, dict):
+            tile_items = tiles_data.items()
+        else:
+            tile_items = [(tile["id"], tile) for tile in tiles_data]
+        for tile_id_raw, tile in tile_items:
+            tile_id = int(tile_id_raw)
+            uv = tile.get("uv")
+            if uv is not None:
+                uv = (int(uv[0]), int(uv[1]))
+            tile_name = tile.get("name") or tile.get("key") or f"tile_{tile_id}"
             tiles[tile_id] = TilesetTile(
                 tile_id=tile_id,
-                key=tile.get("key", f"tile_{tile_id}"),
+                name=tile_name,
                 solid=bool(tile.get("solid", False)),
                 glyph=tile.get("glyph", "?"),
                 tags=list(tile.get("tags", [])),
+                atlas_image=tile.get("atlas_image"),
+                uv=uv,
+                sprite_key=tile.get("sprite_key"),
             )
         return Tileset(tileset_id=tileset_id, tile_size=tile_size, tiles=tiles)
 
