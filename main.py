@@ -7,11 +7,11 @@ BASE_DIR = Path(__file__).resolve().parent
 ASSETS_DIR = BASE_DIR / "Cute_Fantasy_Free" / "Player"
 PLAYER_SHEET = ASSETS_DIR / "Player.png"
 
-SCREEN_WIDTH = 800
-SCREEN_HEIGHT = 600
+BASE_WIDTH = 800
+BASE_HEIGHT = 600
 FPS = 60
 TILE_SIZE = 32
-SCALE = 2
+BASE_SCALE = 2
 
 
 class SpriteSheet:
@@ -38,12 +38,18 @@ class SpriteSheet:
 
 
 class Player(pygame.sprite.Sprite):
-    def __init__(self, sprite_sheet: SpriteSheet, position: pygame.Vector2):
+    def __init__(
+        self,
+        sprite_sheet: SpriteSheet,
+        position: pygame.Vector2,
+        scale_factor: float,
+    ):
         super().__init__()
         self.sprite_sheet = sprite_sheet
         self.animations = self._load_animations()
         self.direction = pygame.Vector2(0, 0)
-        self.speed = 120
+        self.scale_factor = scale_factor
+        self.speed = 120 * scale_factor
         self.current_direction = "down"
         self.frame_index = 0
         self.frame_time = 0.0
@@ -51,8 +57,8 @@ class Player(pygame.sprite.Sprite):
         self.image = pygame.transform.scale(
             self.image,
             (
-                self.image.get_width() * SCALE,
-                self.image.get_height() * SCALE,
+                int(self.image.get_width() * BASE_SCALE * self.scale_factor),
+                int(self.image.get_height() * BASE_SCALE * self.scale_factor),
             ),
         )
         self.rect = self.image.get_rect(center=position)
@@ -107,22 +113,38 @@ class Player(pygame.sprite.Sprite):
         frame = self.animations[self.current_direction][self.frame_index]
         self.image = pygame.transform.scale(
             frame,
-            (frame.get_width() * SCALE, frame.get_height() * SCALE),
+            (
+                int(frame.get_width() * BASE_SCALE * self.scale_factor),
+                int(frame.get_height() * BASE_SCALE * self.scale_factor),
+            ),
         )
         self.rect = self.image.get_rect(center=self.rect.center)
 
 
+def _get_scale_factor(screen_size: tuple[int, int]) -> float:
+    width, height = screen_size
+    width_scale = width / BASE_WIDTH
+    height_scale = height / BASE_HEIGHT
+    return min(width_scale, height_scale)
+
+
 def main() -> None:
     pygame.init()
-    screen = pygame.display.set_mode((SCREEN_WIDTH, SCREEN_HEIGHT))
+    screen = pygame.display.set_mode((0, 0), pygame.FULLSCREEN | pygame.SCALED)
     pygame.display.set_caption("Those Who Fight")
     clock = pygame.time.Clock()
+    screen_size = screen.get_size()
+    scale_factor = _get_scale_factor(screen_size)
 
     if not PLAYER_SHEET.exists():
         raise FileNotFoundError(f"Missing sprite sheet: {PLAYER_SHEET}")
 
     sprite_sheet = SpriteSheet(PLAYER_SHEET, TILE_SIZE, TILE_SIZE)
-    player = Player(sprite_sheet, pygame.Vector2(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2))
+    player = Player(
+        sprite_sheet,
+        pygame.Vector2(screen_size[0] / 2, screen_size[1] / 2),
+        scale_factor,
+    )
     all_sprites = pygame.sprite.Group(player)
 
     running = True
