@@ -35,7 +35,15 @@ class Button:
 
 def create_window() -> pygame.Surface:
     pygame.display.set_caption(WINDOW_TITLE)
-    return pygame.display.set_mode((0, 0), pygame.SCALED | pygame.NOFRAME)
+    info = pygame.display.Info()
+    width, height = info.current_w, info.current_h
+    if not width or not height:
+        desktop_sizes = getattr(pygame.display, "get_desktop_sizes", lambda: [])()
+        if desktop_sizes:
+            width, height = desktop_sizes[0]
+        else:
+            width, height = 1280, 720
+    return pygame.display.set_mode((width, height), pygame.SCALED | pygame.NOFRAME)
 
 
 def run() -> None:
