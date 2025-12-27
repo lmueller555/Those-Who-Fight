@@ -9,7 +9,6 @@
 ### Ground & layout
 - Grass base: `Cute_Fantasy/Tiles/Grass/Grass_Tiles_1.png`, `Cute_Fantasy/Tiles/Grass/Grass_Tiles_2.png`
 - Road loop + branch paths: `Cute_Fantasy/Tiles/Cobble_Road/Cobble_Road_1.png`, `Cute_Fantasy/Tiles/Cobble_Road/Cobble_Road_2.png`
-- Farmland: `Cute_Fantasy/Tiles/FarmLand/FarmLand_Tile.png`
 
 ### Water & bridge
 - Pond/river water: `Cute_Fantasy/Tiles/Water/Water_Tile_1.png`, `Cute_Fantasy/Tiles/Water/Water_Middle.png`
@@ -24,9 +23,6 @@
   - `Cute_Fantasy/Buildings/Buildings/Houses/Wood/House_5_Wood_Green_Red.png`
 - Inn: `Cute_Fantasy/Buildings/Buildings/Unique_Buildings/Inn/Inn_Blue.png`
 - Blacksmith: `Cute_Fantasy/Buildings/Buildings/Unique_Buildings/Blacksmith_House/Blacksmith_House_Red.png`
-- Barn: `Cute_Fantasy/Buildings/Buildings/Unique_Buildings/Barn/Barn_Base_Red.png`
-- Silo: `Cute_Fantasy/Buildings/Buildings/Unique_Buildings/Silo/Silo.png`
-- Windmill: `Cute_Fantasy/Buildings/Buildings/Unique_Buildings/Windmill/Windmill.png`
 - Market stalls: `Cute_Fantasy/Buildings/Buildings/Unique_Buildings/Stalls/Market_Stalls.png`
 
 ### Plaza props & town decor
@@ -37,20 +33,11 @@
 - Barrels: `Cute_Fantasy/Outdoor decoration/barrels.png`
 - Well: `Cute_Fantasy/Outdoor decoration/Well.png`
 - Signs: `Cute_Fantasy/Outdoor decoration/Signs.png`
-- Fences: `Cute_Fantasy/Outdoor decoration/Fences.png`, `Cute_Fantasy/Outdoor decoration/Fence_Big.png`, `Cute_Fantasy/Outdoor decoration/White_Fence.png`
-- Picnic area: `Cute_Fantasy/Outdoor decoration/Picnic_Basket.png`, `Cute_Fantasy/Tiles/Picnic_Blankets.png`
-
-### Farm props
-- Crops: `Cute_Fantasy/Crops/Crops.png`, `Cute_Fantasy/Crops/Crops_2.png`
-- Water trough: `Cute_Fantasy/Outdoor decoration/Water_Troughs.png`
-- Hay bales: `Cute_Fantasy/Outdoor decoration/Hay_Bales.png`
-- Scarecrow: `Cute_Fantasy/Outdoor decoration/Scarecrows.png`
 
 ### Nature & boundaries
 - Trees: `Cute_Fantasy/Trees/Big_Oak_Tree.png`, `Cute_Fantasy/Trees/Medium_Birch_Tree.png`, `Cute_Fantasy/Trees/Small_Spruce_Tree.png`
 
 ### NPCs
-- Farmer: `Cute_Fantasy/NPCs (Premade)/Farmer_Bob.png`
 - Fisher: `Cute_Fantasy/NPCs (Premade)/Fisherman_Fin.png`
 - Bartender: `Cute_Fantasy/NPCs (Premade)/Bartender_Bruno.png`
 - Miner: `Cute_Fantasy/NPCs (Premade)/Miner_Mike.png`
@@ -80,21 +67,11 @@
   - All house doors face the cobble road.
 - **Well** placed between the northwest houses to create a cozy residential cluster.
 
-### Farm area (southeast)
-- **Barn + Silo** placed on the **southeast** edge of the loop with entrances facing the road.
-- A **farm plot** just south/east of the barn using **farmland tiles**, with **rows of crops** from both crop sheets.
-- **Water trough** and **hay bales** placed beside the barn.
-- **Scarecrow** positioned at the far edge of the farm plot.
-- **Fence lines** (wood/white) define the farm boundary and guide player movement to the barn path.
-
-### Windmill & water feature
-- **Windmill** on the **northeast edge** of town, outside the loop but connected by a short cobble spur; entrance faces the road.
-- A **small pond** on the **east side** of town, just south of the windmill spur, with a **stone bridge** crossing a narrow outlet so the road can pass over it.
+### Water feature
+- A **small pond** on the **east side** of town, with a **stone bridge** crossing a narrow outlet so the road can pass over it.
 
 ### Nature, boundaries, and cozy details
 - **Trees** (big oak, medium birch, small spruce) frame the town boundary on all sides, denser on the north and west to feel sheltered.
-- **Fences** outline house yards and mark the edge of the central plaza’s green.
-- **Picnic area** (blanket + basket) on a grassy patch **northwest of the plaza** near the residential cluster.
 
 ### NPC placement (5–7 total)
 - **Farmer Bob** near the farm plot by the barn.
