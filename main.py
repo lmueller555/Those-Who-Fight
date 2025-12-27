@@ -177,6 +177,11 @@ class TownMap:
             TILE_SIZE,
             TILE_SIZE,
         )
+        barrel_sheet = SpriteSheet(
+            TOWN_ASSETS_DIR / "Outdoor decoration" / "barrels.png",
+            16,  # Each barrel sprite is 16 pixels wide
+            32,  # Each barrel sprite is 32 pixels tall
+        )
         bartender_sheet = SpriteSheet(
             TOWN_ASSETS_DIR / "NPCs (Premade)" / "Bartender_Bruno.png",
             TILE_SIZE,
@@ -254,9 +259,6 @@ class TownMap:
             "lantern": self._scale(
                 self._load_image("Outdoor decoration/Lanter_Posts.png")
             ),
-            "barrels": self._scale(
-                self._load_image("Outdoor decoration/barrels.png")
-            ),
             "well": self._scale(self._load_image("Outdoor decoration/Well.png")),
             "hay_bales": self._scale(
                 self._load_image("Outdoor decoration/Hay_Bales.png")
@@ -264,6 +266,17 @@ class TownMap:
             "fences": self._scale(
                 self._load_image("Outdoor decoration/Fences.png")
             ),
+        }
+
+        # Extract individual barrel sprites from the sprite sheet
+        # Top row (0): wooden barrels, Bottom row (1): flower pots in barrels
+        self.barrels = {
+            "brown": self._scale(barrel_sheet.get_frame(0, 0)),
+            "dark": self._scale(barrel_sheet.get_frame(1, 0)),
+            "red": self._scale(barrel_sheet.get_frame(2, 0)),
+            "blue": self._scale(barrel_sheet.get_frame(3, 0)),
+            "green": self._scale(barrel_sheet.get_frame(4, 0)),
+            "purple": self._scale(barrel_sheet.get_frame(5, 0)),
         }
 
         # Extract individual flower pot sprites from the sprite sheet
@@ -368,9 +381,9 @@ class TownMap:
         self._blit_object(self.props["benches"], 13, 14)
 
         # Additional town decorations - create a lived-in feeling
-        self._blit_object(self.props["barrels"], 19, 12)
-        self._blit_object(self.props["barrels"], 5, 12)
-        self._blit_object(self.props["barrels"], 7, 14)
+        self._blit_object(self.barrels["brown"], 19, 12)
+        self._blit_object(self.barrels["dark"], 5, 12)
+        self._blit_object(self.barrels["red"], 7, 14)
         self._blit_object(self.props["hay_bales"], 9, 21)
         self._blit_object(self.props["hay_bales"], 7, 21)
         self._blit_object(self.props["fences"], 21, 10)
