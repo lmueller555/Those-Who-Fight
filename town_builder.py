@@ -1,6 +1,6 @@
 import pygame
 
-from sprites import SpriteSheet, BASE_SCALE, TILE_SIZE, TOWN_ASSETS_DIR
+from sprites import SpriteSheet, BASE_SCALE, TILE_SIZE, TOWN_ASSETS_DIR, BASE_DIR
 
 
 class TownMap:
@@ -39,7 +39,13 @@ class TownMap:
     def _load_assets(self) -> None:
         # Load tile images and spritesheets
         grass_tile_image = self._load_image("Tiles/Grass/Grass_1_Middle.png")
-        path_tile_image = self._load_image("Tiles/Grass/Path_Decoration.png")
+
+        # Load Grass_Tiles_1 which contains path transition tiles as a SpriteSheet
+        grass_tiles_sheet = SpriteSheet(
+            TOWN_ASSETS_DIR / "Tiles" / "Grass" / "Grass_Tiles_1.png",
+            TILE_SIZE,
+            TILE_SIZE,
+        )
 
         water_tiles = SpriteSheet(
             TOWN_ASSETS_DIR / "Tiles" / "Water" / "Water_Tile_1.png",
@@ -78,8 +84,42 @@ class TownMap:
         )
 
         self.grass_tile = self._scale_to_tile(grass_tile_image)
-        self.road_tile_horizontal = self._scale_to_tile(path_tile_image)
-        self.road_tile_vertical = pygame.transform.rotate(self.road_tile_horizontal, 90)
+
+        # Extract path transition tiles from Grass_Tiles_1 using SpriteSheet
+        #
+        # HOW TO EXPERIMENT WITH TILE INDICES:
+        # - get_frame(column, row) - both start at 0
+        # - column: 0 = leftmost, 1 = second from left, 2 = third from left, etc.
+        # - row: 0 = topmost, 1 = second from top, 2 = third from top, etc.
+        #
+        # WHAT EACH TILE SHOULD BE:
+        # - "grass_top_left": grass surrounds top-left, path in bottom-right
+        # - "grass_top": grass at top, path at bottom
+        # - "grass_top_right": grass surrounds top-right, path in bottom-left
+        # - "grass_left": grass on left, path on right
+        # - "center": pure path/dirt (no grass visible)
+        # - "grass_right": grass on right, path on left
+        # - "grass_bottom_left": grass surrounds bottom-left, path in top-right
+        # - "grass_bottom": grass at bottom, path at top
+        # - "grass_bottom_right": grass surrounds bottom-right, path in top-left
+        #
+        # ADJUST THE NUMBERS BELOW to experiment:
+        self.path_tiles = {
+            # Top row of path section - CHANGE THESE NUMBERS
+            "grass_top_left": self._scale_to_tile(grass_tiles_sheet.get_frame(0, 3)),  # (column, row)
+            "grass_top": self._scale_to_tile(grass_tiles_sheet.get_frame(1, 3)),
+            "grass_top_right": self._scale_to_tile(grass_tiles_sheet.get_frame(2, 3)),
+
+            # Middle row of path section - CHANGE THESE NUMBERS
+            "grass_left": self._scale_to_tile(grass_tiles_sheet.get_frame(0, 4)),
+            "center": self._scale_to_tile(grass_tiles_sheet.get_frame(1, 4)),
+            "grass_right": self._scale_to_tile(grass_tiles_sheet.get_frame(2, 4)),
+
+            # Bottom row of path section - CHANGE THESE NUMBERS
+            "grass_bottom_left": self._scale_to_tile(grass_tiles_sheet.get_frame(0, 5)),
+            "grass_bottom": self._scale_to_tile(grass_tiles_sheet.get_frame(1, 5)),
+            "grass_bottom_right": self._scale_to_tile(grass_tiles_sheet.get_frame(2, 5)),
+        }
         self.water_tile = self._scale(water_tiles.get_frame(0, 0))
         self.bridge = self._scale(
             self._load_image("Tiles/Bridge/Bridge_Stone_Horizontal.png")
@@ -211,41 +251,58 @@ class TownMap:
         # Main road oval loop
         loop_left, loop_right = 6, 18
         loop_top, loop_bottom = 8, 19
-        # Horizontal sections (top and bottom of loop)
-        for x in range(loop_left, loop_right + 1):
-            self._blit_tile(self.road_tile_horizontal, x, loop_top)
-            self._blit_tile(self.road_tile_horizontal, x, loop_bottom)
-        # Vertical sections (left and right sides of loop)
-        for y in range(loop_top, loop_bottom + 1):
-            self._blit_tile(self.road_tile_vertical, loop_left, y)
-            self._blit_tile(self.road_tile_vertical, loop_right, y)
 
-        # South entrance road (vertical)
+        # Top horizontal section - grass is ABOVE this path
+        # Top-left corner: grass in top-left
+        self._blit_tile(self.path_tiles["grass_top_left"], loop_left, loop_top)
+        # Top middle: grass at top
+        for x in range(loop_left + 1, loop_right):
+            self._blit_tile(self.path_tiles["grass_top"], x, loop_top)
+        # Top-right corner: grass in top-right
+        self._blit_tile(self.path_tiles["grass_top_right"], loop_right, loop_top)
+
+        # Bottom horizontal section - grass is BELOW this path
+        # Bottom-left corner: grass in bottom-left
+        self._blit_tile(self.path_tiles["grass_bottom_left"], loop_left, loop_bottom)
+        # Bottom middle: grass at bottom
+        for x in range(loop_left + 1, loop_right):
+            self._blit_tile(self.path_tiles["grass_bottom"], x, loop_bottom)
+        # Bottom-right corner: grass in bottom-right
+        self._blit_tile(self.path_tiles["grass_bottom_right"], loop_right, loop_bottom)
+
+        # Vertical sections
+        for y in range(loop_top + 1, loop_bottom):
+            # Left side: grass is to the LEFT
+            self._blit_tile(self.path_tiles["grass_left"], loop_left, y)
+            # Right side: grass is to the RIGHT
+            self._blit_tile(self.path_tiles["grass_right"], loop_right, y)
+
+        # South entrance road (vertical path down center)
         center_x = self.columns // 2
         for y in range(loop_bottom + 1, self.rows):
-            self._blit_tile(self.road_tile_vertical, center_x, y)
+            self._blit_tile(self.path_tiles["center"], center_x, y)
 
-        # Central plaza (5x5 square) - use horizontal tiles
+        # Central plaza (5x5 square) - all center tiles (pure path)
         plaza_left, plaza_top = 10, 11
         for y in range(plaza_top, plaza_top + 5):
             for x in range(plaza_left, plaza_left + 5):
-                self._blit_tile(self.road_tile_horizontal, x, y)
+                self._blit_tile(self.path_tiles["center"], x, y)
 
-        # North branch to market stalls (vertical)
+        # North branch to market stalls (vertical path up center)
         for y in range(loop_top - 3, loop_top):
-            self._blit_tile(self.road_tile_vertical, center_x, y)
+            self._blit_tile(self.path_tiles["center"], center_x, y)
 
-        # West branch to blacksmith (horizontal)
+        # West branch to blacksmith (horizontal path)
         for x in range(loop_left - 3, loop_left):
-            self._blit_tile(self.road_tile_horizontal, x, 13)
+            self._blit_tile(self.path_tiles["center"], x, 13)
 
-        # East branches for houses (horizontal)
+        # East branches for houses (horizontal path)
         for x in range(loop_right + 1, loop_right + 3):
-            self._blit_tile(self.road_tile_horizontal, x, 9)
+            self._blit_tile(self.path_tiles["center"], x, 9)
 
-        # South residential path (vertical)
+        # South residential path (vertical path)
         for y in range(loop_bottom + 1, loop_bottom + 4):
-            self._blit_tile(self.road_tile_vertical, 8, y)
+            self._blit_tile(self.path_tiles["center"], 8, y)
 
         # Buildings - placed strategically around the loop
         self._blit_object(self.buildings["inn"], 18, 13)
