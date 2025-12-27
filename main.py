@@ -172,6 +172,21 @@ class TownMap:
             TILE_SIZE,
             TILE_SIZE,
         )
+        bartender_sheet = SpriteSheet(
+            TOWN_ASSETS_DIR / "NPCs (Premade)" / "Bartender_Bruno.png",
+            TILE_SIZE,
+            TILE_SIZE,
+        )
+        miner_sheet = SpriteSheet(
+            TOWN_ASSETS_DIR / "NPCs (Premade)" / "Miner_Mike.png",
+            TILE_SIZE,
+            TILE_SIZE,
+        )
+        chef_sheet = SpriteSheet(
+            TOWN_ASSETS_DIR / "NPCs (Premade)" / "Chef_Chloe.png",
+            TILE_SIZE,
+            TILE_SIZE,
+        )
         self.grass_tile = self._scale(grass_tiles.get_frame(0, 0))
         self.road_tile = self._scale(cobble_tiles.get_frame(0, 0))
         self.water_tile = self._scale(water_tiles.get_frame(0, 0))
@@ -250,15 +265,9 @@ class TownMap:
         }
 
         self.npc_sprites = {
-            "bartender": self._scale(
-                self._load_image("NPCs (Premade)/Bartender_Bruno.png")
-            ),
-            "miner": self._scale(
-                self._load_image("NPCs (Premade)/Miner_Mike.png")
-            ),
-            "chef": self._scale(
-                self._load_image("NPCs (Premade)/Chef_Chloe.png")
-            ),
+            "bartender": self._scale(bartender_sheet.get_frame(0, 0)),
+            "miner": self._scale(miner_sheet.get_frame(0, 0)),
+            "chef": self._scale(chef_sheet.get_frame(0, 0)),
         }
 
         trees = {
