@@ -338,7 +338,7 @@ class TownMap:
                 self._blit_tile(self.grass_tile, x, y)
 
         loop_left, loop_right = 6, 18
-        loop_top, loop_bottom = 7, 20
+        loop_top, loop_bottom = 8, 19
         for x in range(loop_left, loop_right + 1):
             self._blit_tile(self.road_tile, x, loop_top)
             self._blit_tile(self.road_tile, x, loop_bottom)
@@ -348,96 +348,104 @@ class TownMap:
 
         center_x = self.columns // 2
         for y in range(loop_bottom + 1, self.rows):
-            if y >= loop_bottom + 1:
-                self._blit_tile(self.road_tile, center_x, y)
+            self._blit_tile(self.road_tile, center_x, y)
 
-        plaza_left, plaza_top = 10, 10
+        plaza_left, plaza_top = 10, 11
         for y in range(plaza_top, plaza_top + 5):
             for x in range(plaza_left, plaza_left + 5):
                 self._blit_tile(self.road_tile, x, y)
 
-        for x in range(plaza_left + 2, plaza_left + 3):
-            for y in range(loop_top - 2, plaza_top):
-                self._blit_tile(self.road_tile, x, y)
-
+        for y in range(loop_top - 3, loop_top):
+            self._blit_tile(self.road_tile, center_x, y)
         for x in range(loop_right + 1, loop_right + 4):
             self._blit_tile(self.road_tile, x, 13)
         for x in range(loop_left - 3, loop_left):
             self._blit_tile(self.road_tile, x, 13)
-        for y in range(loop_bottom + 1, loop_bottom + 4):
-            self._blit_tile(self.road_tile, 15, y)
+        for x in range(loop_right + 1, loop_right + 4):
+            self._blit_tile(self.road_tile, x, 9)
+        for y in range(loop_top - 2, loop_top + 1):
+            self._blit_tile(self.road_tile, loop_right + 2, y)
+        for y in range(loop_bottom + 1, loop_bottom + 5):
+            self._blit_tile(self.road_tile, 16, y)
 
-        for x in range(16, 20):
-            for y in range(19, 23):
+        for x in range(18, 22):
+            for y in range(22, 25):
                 self._blit_tile(self.farmland_tile, x, y)
 
-        for x in range(19, 22):
-            for y in range(10, 13):
+        for x in range(21, 24):
+            for y in range(12, 15):
                 self._blit_tile(self.water_tile, x, y)
         self.surface.blit(
             self.bridge,
             (
-                19 * self.tile_size,
-                11 * self.tile_size,
+                20 * self.tile_size,
+                13 * self.tile_size,
             ),
         )
 
-        self._blit_object(self.buildings["inn"], 16, 12)
-        self._blit_object(self.props["signs"], 15, 13)
-        self._blit_object(self.buildings["blacksmith"], 6, 12)
-        self._blit_object(self.props["signs"], 7, 13)
-        self._blit_object(self.buildings["stalls"], 12, 7)
-        self._blit_object(self.buildings["house_1"], 14, 8)
-        self._blit_object(self.buildings["house_2"], 16, 8)
-        self._blit_object(self.buildings["house_3"], 8, 8)
-        self._blit_object(self.buildings["house_4"], 6, 8)
-        self._blit_object(self.buildings["house_5"], 6, 18)
-        self._blit_object(self.props["well"], 8, 9)
+        self._blit_object(self.buildings["inn"], 18, 13)
+        self._blit_object(self.props["signs"], 17, 14)
+        self._blit_object(self.buildings["blacksmith"], 6, 13)
+        self._blit_object(self.props["signs"], 7, 14)
+        self._blit_object(self.buildings["stalls"], 12, 5)
+        self._blit_object(self.buildings["house_1"], 14, 9)
+        self._blit_object(self.buildings["house_2"], 16, 9)
+        self._blit_object(self.buildings["house_3"], 8, 9)
+        self._blit_object(self.buildings["house_4"], 6, 9)
+        self._blit_object(self.buildings["house_5"], 7, 18)
+        self._blit_object(self.props["well"], 8, 11)
 
-        self._blit_object(self.buildings["barn"], 17, 18)
-        self._blit_object(self.buildings["silo"], 20, 18)
-        self._blit_object(self.props["water_trough"], 18, 20)
-        self._blit_object(self.props["hay"], 19, 20)
-        self._blit_object(self.props["scarecrow"], 20, 22)
+        self._blit_object(self.buildings["barn"], 17, 21)
+        self._blit_object(self.buildings["silo"], 20, 21)
+        self._blit_object(self.props["water_trough"], 18, 23)
+        self._blit_object(self.props["hay"], 20, 23)
+        self._blit_object(self.props["scarecrow"], 22, 24)
 
         crop_index = 0
-        for y in range(20, 23):
-            for x in range(16, 19):
-                self._blit_tile(self.crop_tiles[crop_index % len(self.crop_tiles)], x, y)
+        for y in range(23, 25):
+            for x in range(18, 22):
+                self._blit_tile(
+                    self.crop_tiles[crop_index % len(self.crop_tiles)], x, y
+                )
                 crop_index += 1
 
-        self._blit_object(self.buildings["windmill"], 20, 6)
+        self._blit_object(self.buildings["windmill"], 21, 6)
 
-        self._blit_object(self.props["fountain"], 12, 12)
-        self._blit_object(self.props["benches"], 11, 11)
-        self._blit_object(self.props["benches"], 11, 14)
-        self._blit_object(self.props["lantern"], 10, 10)
-        self._blit_object(self.props["lantern"], 14, 10)
-        self._blit_object(self.props["lantern"], 10, 14)
-        self._blit_object(self.props["lantern"], 14, 14)
-        self._blit_object(self.props["flowers"], 9, 12)
-        self._blit_object(self.props["flowers"], 15, 12)
-        self._blit_object(self.props["barrels"], 15, 13)
+        self._blit_object(self.props["fountain"], 12, 13)
+        self._blit_object(self.props["benches"], 11, 12)
+        self._blit_object(self.props["benches"], 11, 15)
+        self._blit_object(self.props["lantern"], 10, 11)
+        self._blit_object(self.props["lantern"], 14, 11)
+        self._blit_object(self.props["lantern"], 10, 15)
+        self._blit_object(self.props["lantern"], 14, 15)
+        self._blit_object(self.props["flowers"], 9, 13)
+        self._blit_object(self.props["flowers"], 15, 13)
+        self._blit_object(self.props["barrels"], 15, 14)
         self._blit_object(self.props["picnic_blanket"], 7, 7)
         self._blit_object(self.props["picnic_basket"], 8, 7)
 
-        self._blit_object(self.npc_sprites["farmer"], 18, 21)
-        self._blit_object(self.npc_sprites["fisher"], 20, 13)
-        self._blit_object(self.npc_sprites["bartender"], 16, 14)
-        self._blit_object(self.npc_sprites["miner"], 7, 14)
-        self._blit_object(self.npc_sprites["chef"], 12, 9)
+        self._blit_object(self.npc_sprites["farmer"], 17, 23)
+        self._blit_object(self.npc_sprites["fisher"], 20, 15)
+        self._blit_object(self.npc_sprites["bartender"], 18, 15)
+        self._blit_object(self.npc_sprites["miner"], 6, 15)
+        self._blit_object(self.npc_sprites["chef"], 12, 7)
 
-        for x in range(2, self.columns - 2, 4):
-            self._blit_object(self.trees["oak"], x, 4)
-        for y in range(2, self.rows - 4, 4):
-            self._blit_object(self.trees["birch"], 2, y)
-        for y in range(4, self.rows - 2, 4):
-            self._blit_object(self.trees["spruce"], self.columns - 3, y)
+        tree_positions = [
+            (3, 4, "oak"),
+            (11, 4, "oak"),
+            (19, 4, "oak"),
+            (3, 12, "birch"),
+            (3, 20, "birch"),
+            (21, 10, "spruce"),
+            (22, 18, "spruce"),
+        ]
+        for x, y, tree in tree_positions:
+            self._blit_object(self.trees[tree], x, y)
 
-        for x in range(15, 22):
-            self._blit_object(self.props["white_fence"], x, 17)
-        for y in range(18, 23):
-            self._blit_object(self.props["fence"], 15, y)
+        for x in range(17, 23):
+            self._blit_object(self.props["white_fence"], x, 20)
+        for y in range(21, 25):
+            self._blit_object(self.props["fence"], 17, y)
 
     def draw(self, screen: pygame.Surface, offset: pygame.Vector2) -> None:
         screen.blit(self.surface, (-offset.x, -offset.y))
