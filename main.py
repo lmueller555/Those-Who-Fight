@@ -172,6 +172,11 @@ class TownMap:
             TILE_SIZE,
             TILE_SIZE,
         )
+        flower_sheet = SpriteSheet(
+            TOWN_ASSETS_DIR / "Outdoor decoration" / "Flowers.png",
+            TILE_SIZE,
+            TILE_SIZE,
+        )
         bartender_sheet = SpriteSheet(
             TOWN_ASSETS_DIR / "NPCs (Premade)" / "Bartender_Bruno.png",
             TILE_SIZE,
@@ -249,9 +254,6 @@ class TownMap:
             "lantern": self._scale(
                 self._load_image("Outdoor decoration/Lanter_Posts.png")
             ),
-            "flowers": self._scale(
-                self._load_image("Outdoor decoration/Flowers.png")
-            ),
             "barrels": self._scale(
                 self._load_image("Outdoor decoration/barrels.png")
             ),
@@ -262,6 +264,15 @@ class TownMap:
             "fences": self._scale(
                 self._load_image("Outdoor decoration/Fences.png")
             ),
+        }
+
+        # Extract individual flower pot sprites from the sprite sheet
+        self.flower_pots = {
+            "red": self._scale(flower_sheet.get_frame(0, 0)),
+            "blue": self._scale(flower_sheet.get_frame(1, 0)),
+            "yellow": self._scale(flower_sheet.get_frame(2, 0)),
+            "pink": self._scale(flower_sheet.get_frame(3, 0)),
+            "purple": self._scale(flower_sheet.get_frame(4, 0)),
         }
 
         self.npc_sprites = {
@@ -364,6 +375,27 @@ class TownMap:
         self._blit_object(self.props["hay_bales"], 7, 21)
         self._blit_object(self.props["fences"], 21, 10)
         self._blit_object(self.props["fences"], 3, 10)
+
+        # Flower pots - sprinkled along plaza edges and near buildings
+        # Plaza edge decorations
+        self._blit_object(self.flower_pots["red"], 10, 11)
+        self._blit_object(self.flower_pots["blue"], 14, 11)
+        self._blit_object(self.flower_pots["yellow"], 10, 15)
+        self._blit_object(self.flower_pots["pink"], 14, 15)
+        # Near benches
+        self._blit_object(self.flower_pots["purple"], 10, 12)
+        self._blit_object(self.flower_pots["red"], 14, 14)
+        # Near inn entrance
+        self._blit_object(self.flower_pots["blue"], 18, 14)
+        self._blit_object(self.flower_pots["yellow"], 17, 14)
+        # Near blacksmith entrance
+        self._blit_object(self.flower_pots["pink"], 6, 14)
+        self._blit_object(self.flower_pots["purple"], 5, 14)
+        # Near houses for cozy residential feel
+        self._blit_object(self.flower_pots["red"], 20, 10)
+        self._blit_object(self.flower_pots["blue"], 16, 10)
+        self._blit_object(self.flower_pots["yellow"], 4, 14)
+        self._blit_object(self.flower_pots["pink"], 8, 23)
 
         # Road intersection decorations - signs at key intersections
         # South entrance where road meets the oval loop
