@@ -1,8 +1,6 @@
-from pathlib import Path
-
 import pygame
 
-from main import SpriteSheet, BASE_SCALE, TILE_SIZE, TOWN_ASSETS_DIR
+from sprites import SpriteSheet, BASE_SCALE, TILE_SIZE, TOWN_ASSETS_DIR
 
 
 class TownMap:
@@ -35,11 +33,10 @@ class TownMap:
         )
 
     def _load_assets(self) -> None:
-        grass_tiles = SpriteSheet(
-            TOWN_ASSETS_DIR / "Tiles" / "Grass" / "Grass_Tiles_1.png",
-            TILE_SIZE,
-            TILE_SIZE,
-        )
+        # Use individual middle tiles for seamless grass
+        grass_tile_image = self._load_image("Tiles/Grass/Grass_1_Middle.png")
+
+        # Load cobble road spritesheet and extract the center/fill tile
         cobble_tiles = SpriteSheet(
             TOWN_ASSETS_DIR / "Tiles" / "Cobble_Road" / "Cobble_Road_1.png",
             TILE_SIZE,
@@ -80,8 +77,9 @@ class TownMap:
             TILE_SIZE,
             TILE_SIZE,
         )
-        self.grass_tile = self._scale(grass_tiles.get_frame(0, 0))
-        self.road_tile = self._scale(cobble_tiles.get_frame(0, 0))
+        self.grass_tile = self._scale(grass_tile_image)
+        # Extract the middle/fill tile from the cobble spritesheet (position 1,1 is typically the seamless center tile)
+        self.road_tile = self._scale(cobble_tiles.get_frame(1, 1))
         self.water_tile = self._scale(water_tiles.get_frame(0, 0))
         self.bridge = self._scale(
             self._load_image("Tiles/Bridge/Bridge_Stone_Horizontal.png")
