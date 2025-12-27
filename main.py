@@ -162,11 +162,6 @@ class TownMap:
             TILE_SIZE,
             TILE_SIZE,
         )
-        farmland_tiles = SpriteSheet(
-            TOWN_ASSETS_DIR / "Tiles" / "FarmLand" / "FarmLand_Tile.png",
-            TILE_SIZE,
-            TILE_SIZE,
-        )
         water_tiles = SpriteSheet(
             TOWN_ASSETS_DIR / "Tiles" / "Water" / "Water_Tile_1.png",
             TILE_SIZE,
@@ -174,7 +169,6 @@ class TownMap:
         )
         self.grass_tile = self._scale(grass_tiles.get_frame(0, 0))
         self.road_tile = self._scale(cobble_tiles.get_frame(0, 0))
-        self.farmland_tile = self._scale(farmland_tiles.get_frame(0, 0))
         self.water_tile = self._scale(water_tiles.get_frame(0, 0))
         self.bridge = self._scale(
             self._load_image("Tiles/Bridge/Bridge_Stone_Horizontal.png")
@@ -190,21 +184,6 @@ class TownMap:
                 self._load_image(
                     "Buildings/Buildings/Unique_Buildings/Blacksmith_House/"
                     "Blacksmith_House_Red.png"
-                )
-            ),
-            "barn": self._scale(
-                self._load_image(
-                    "Buildings/Buildings/Unique_Buildings/Barn/Barn_Base_Red.png"
-                )
-            ),
-            "silo": self._scale(
-                self._load_image(
-                    "Buildings/Buildings/Unique_Buildings/Silo/Silo.png"
-                )
-            ),
-            "windmill": self._scale(
-                self._load_image(
-                    "Buildings/Buildings/Unique_Buildings/Windmill/Windmill.png"
                 )
             ),
             "house_1": self._scale(
@@ -257,31 +236,9 @@ class TownMap:
             ),
             "well": self._scale(self._load_image("Outdoor decoration/Well.png")),
             "signs": self._scale(self._load_image("Outdoor decoration/Signs.png")),
-            "fence": self._scale(self._load_image("Outdoor decoration/Fences.png")),
-            "white_fence": self._scale(
-                self._load_image("Outdoor decoration/White_Fence.png")
-            ),
-            "picnic_blanket": self._scale(
-                self._load_image("Tiles/Picnic_Blankets.png")
-            ),
-            "picnic_basket": self._scale(
-                self._load_image("Outdoor decoration/Picnic_Basket.png")
-            ),
-            "water_trough": self._scale(
-                self._load_image("Outdoor decoration/Water_Troughs.png")
-            ),
-            "hay": self._scale(
-                self._load_image("Outdoor decoration/Hay_Bales.png")
-            ),
-            "scarecrow": self._scale(
-                self._load_image("Outdoor decoration/Scarecrows.png")
-            ),
         }
 
         self.npc_sprites = {
-            "farmer": self._scale(
-                self._load_image("NPCs (Premade)/Farmer_Bob.png")
-            ),
             "fisher": self._scale(
                 self._load_image("NPCs (Premade)/Fisherman_Fin.png")
             ),
@@ -302,19 +259,6 @@ class TownMap:
             "spruce": self._scale(self._load_image("Trees/Small_Spruce_Tree.png")),
         }
         self.trees = trees
-
-        crops = SpriteSheet(
-            TOWN_ASSETS_DIR / "Crops" / "Crops.png", TILE_SIZE, TILE_SIZE
-        )
-        crops_alt = SpriteSheet(
-            TOWN_ASSETS_DIR / "Crops" / "Crops_2.png", TILE_SIZE, TILE_SIZE
-        )
-        self.crop_tiles = [
-            self._scale(crops.get_frame(0, 0)),
-            self._scale(crops.get_frame(1, 0)),
-            self._scale(crops_alt.get_frame(0, 0)),
-            self._scale(crops_alt.get_frame(1, 0)),
-        ]
 
     def _blit_tile(self, tile: pygame.Surface, grid_x: int, grid_y: int) -> None:
         self.surface.blit(tile, (grid_x * self.tile_size, grid_y * self.tile_size))
@@ -368,10 +312,6 @@ class TownMap:
         for y in range(loop_bottom + 1, loop_bottom + 5):
             self._blit_tile(self.road_tile, 16, y)
 
-        for x in range(18, 22):
-            for y in range(22, 25):
-                self._blit_tile(self.farmland_tile, x, y)
-
         for x in range(21, 24):
             for y in range(12, 15):
                 self._blit_tile(self.water_tile, x, y)
@@ -395,22 +335,6 @@ class TownMap:
         self._blit_object(self.buildings["house_5"], 7, 18)
         self._blit_object(self.props["well"], 8, 11)
 
-        self._blit_object(self.buildings["barn"], 17, 21)
-        self._blit_object(self.buildings["silo"], 20, 21)
-        self._blit_object(self.props["water_trough"], 18, 23)
-        self._blit_object(self.props["hay"], 20, 23)
-        self._blit_object(self.props["scarecrow"], 22, 24)
-
-        crop_index = 0
-        for y in range(23, 25):
-            for x in range(18, 22):
-                self._blit_tile(
-                    self.crop_tiles[crop_index % len(self.crop_tiles)], x, y
-                )
-                crop_index += 1
-
-        self._blit_object(self.buildings["windmill"], 21, 6)
-
         self._blit_object(self.props["fountain"], 12, 13)
         self._blit_object(self.props["benches"], 11, 12)
         self._blit_object(self.props["benches"], 11, 15)
@@ -421,10 +345,7 @@ class TownMap:
         self._blit_object(self.props["flowers"], 9, 13)
         self._blit_object(self.props["flowers"], 15, 13)
         self._blit_object(self.props["barrels"], 15, 14)
-        self._blit_object(self.props["picnic_blanket"], 7, 7)
-        self._blit_object(self.props["picnic_basket"], 8, 7)
 
-        self._blit_object(self.npc_sprites["farmer"], 17, 23)
         self._blit_object(self.npc_sprites["fisher"], 20, 15)
         self._blit_object(self.npc_sprites["bartender"], 18, 15)
         self._blit_object(self.npc_sprites["miner"], 6, 15)
@@ -441,11 +362,6 @@ class TownMap:
         ]
         for x, y, tree in tree_positions:
             self._blit_object(self.trees[tree], x, y)
-
-        for x in range(17, 23):
-            self._blit_object(self.props["white_fence"], x, 20)
-        for y in range(21, 25):
-            self._blit_object(self.props["fence"], 17, y)
 
     def draw(self, screen: pygame.Surface, offset: pygame.Vector2) -> None:
         screen.blit(self.surface, (-offset.x, -offset.y))
