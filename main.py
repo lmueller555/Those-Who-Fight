@@ -351,18 +351,9 @@ class TownMap:
         self._blit_object(self.props["fences"], 21, 10)
         self._blit_object(self.props["fences"], 3, 10)
 
-        # Road intersection decorations - minimal lanterns and signs for atmosphere
-        # Plaza entrance lantern
-        self._blit_object(self.props["lantern"], 12, 8)
-        # South entrance lantern with sign
-        self._blit_object(self.props["lantern"], 12, 19)
+        # Road intersection decorations - signs only for now
+        # South entrance sign
         self._blit_object(self.props["signs"], 12, 20)
-        # Northwest corner lantern
-        self._blit_object(self.props["lantern"], 6, 8)
-        # Southeast corner lantern
-        self._blit_object(self.props["lantern"], 18, 19)
-        # Market area lantern
-        self._blit_object(self.props["lantern"], 12, 6)
 
         # NPCs - placed near their workplaces
         self._blit_object(self.npc_sprites["bartender"], 19, 14)
