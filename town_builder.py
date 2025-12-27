@@ -32,16 +32,15 @@ class TownMap:
             ),
         )
 
-    def _load_assets(self) -> None:
-        # Use individual middle tiles for seamless grass
-        grass_tile_image = self._load_image("Tiles/Grass/Grass_1_Middle.png")
+    def _scale_to_tile(self, surface: pygame.Surface) -> pygame.Surface:
+        """Scale a surface to exactly fit tile_size x tile_size"""
+        return pygame.transform.scale(surface, (self.tile_size, self.tile_size))
 
-        # Load cobble road spritesheet and extract the center/fill tile
-        cobble_tiles = SpriteSheet(
-            TOWN_ASSETS_DIR / "Tiles" / "Cobble_Road" / "Cobble_Road_1.png",
-            TILE_SIZE,
-            TILE_SIZE,
-        )
+    def _load_assets(self) -> None:
+        # Load tile images and spritesheets
+        grass_tile_image = self._load_image("Tiles/Grass/Grass_1_Middle.png")
+        path_tile_image = self._load_image("Tiles/Grass/Path_Decoration.png")
+
         water_tiles = SpriteSheet(
             TOWN_ASSETS_DIR / "Tiles" / "Water" / "Water_Tile_1.png",
             TILE_SIZE,
@@ -77,9 +76,10 @@ class TownMap:
             TILE_SIZE,
             TILE_SIZE,
         )
-        self.grass_tile = self._scale(grass_tile_image)
-        # Extract the middle/fill tile from the cobble spritesheet (position 1,1 is typically the seamless center tile)
-        self.road_tile = self._scale(cobble_tiles.get_frame(1, 1))
+
+        self.grass_tile = self._scale_to_tile(grass_tile_image)
+        self.road_tile_horizontal = self._scale_to_tile(path_tile_image)
+        self.road_tile_vertical = pygame.transform.rotate(self.road_tile_horizontal, 90)
         self.water_tile = self._scale(water_tiles.get_frame(0, 0))
         self.bridge = self._scale(
             self._load_image("Tiles/Bridge/Bridge_Stone_Horizontal.png")
@@ -182,7 +182,11 @@ class TownMap:
         }
         self.trees = trees
 
-    def _blit_tile(self, tile: pygame.Surface, grid_x: int, grid_y: int) -> None:
+    def _blit_tile(
+        self, tile: pygame.Surface, grid_x: int, grid_y: int, rotation: int = 0
+    ) -> None:
+        if rotation != 0:
+            tile = pygame.transform.rotate(tile, rotation)
         self.surface.blit(tile, (grid_x * self.tile_size, grid_y * self.tile_size))
 
     def _blit_object(
@@ -207,39 +211,41 @@ class TownMap:
         # Main road oval loop
         loop_left, loop_right = 6, 18
         loop_top, loop_bottom = 8, 19
+        # Horizontal sections (top and bottom of loop)
         for x in range(loop_left, loop_right + 1):
-            self._blit_tile(self.road_tile, x, loop_top)
-            self._blit_tile(self.road_tile, x, loop_bottom)
+            self._blit_tile(self.road_tile_horizontal, x, loop_top)
+            self._blit_tile(self.road_tile_horizontal, x, loop_bottom)
+        # Vertical sections (left and right sides of loop)
         for y in range(loop_top, loop_bottom + 1):
-            self._blit_tile(self.road_tile, loop_left, y)
-            self._blit_tile(self.road_tile, loop_right, y)
+            self._blit_tile(self.road_tile_vertical, loop_left, y)
+            self._blit_tile(self.road_tile_vertical, loop_right, y)
 
-        # South entrance road
+        # South entrance road (vertical)
         center_x = self.columns // 2
         for y in range(loop_bottom + 1, self.rows):
-            self._blit_tile(self.road_tile, center_x, y)
+            self._blit_tile(self.road_tile_vertical, center_x, y)
 
-        # Central plaza (5x5 cobble square)
+        # Central plaza (5x5 square) - use horizontal tiles
         plaza_left, plaza_top = 10, 11
         for y in range(plaza_top, plaza_top + 5):
             for x in range(plaza_left, plaza_left + 5):
-                self._blit_tile(self.road_tile, x, y)
+                self._blit_tile(self.road_tile_horizontal, x, y)
 
-        # North branch to market stalls
+        # North branch to market stalls (vertical)
         for y in range(loop_top - 3, loop_top):
-            self._blit_tile(self.road_tile, center_x, y)
+            self._blit_tile(self.road_tile_vertical, center_x, y)
 
-        # West branch to blacksmith
+        # West branch to blacksmith (horizontal)
         for x in range(loop_left - 3, loop_left):
-            self._blit_tile(self.road_tile, x, 13)
+            self._blit_tile(self.road_tile_horizontal, x, 13)
 
-        # East branches for houses
+        # East branches for houses (horizontal)
         for x in range(loop_right + 1, loop_right + 3):
-            self._blit_tile(self.road_tile, x, 9)
+            self._blit_tile(self.road_tile_horizontal, x, 9)
 
-        # South residential path
+        # South residential path (vertical)
         for y in range(loop_bottom + 1, loop_bottom + 4):
-            self._blit_tile(self.road_tile, 8, y)
+            self._blit_tile(self.road_tile_vertical, 8, y)
 
         # Buildings - placed strategically around the loop
         self._blit_object(self.buildings["inn"], 18, 13)
