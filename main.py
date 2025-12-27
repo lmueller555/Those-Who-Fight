@@ -167,12 +167,18 @@ class TownMap:
             TILE_SIZE,
             TILE_SIZE,
         )
+        sign_sheet = SpriteSheet(
+            TOWN_ASSETS_DIR / "Outdoor decoration" / "Signs.png",
+            TILE_SIZE,
+            TILE_SIZE,
+        )
         self.grass_tile = self._scale(grass_tiles.get_frame(0, 0))
         self.road_tile = self._scale(cobble_tiles.get_frame(0, 0))
         self.water_tile = self._scale(water_tiles.get_frame(0, 0))
         self.bridge = self._scale(
             self._load_image("Tiles/Bridge/Bridge_Stone_Horizontal.png")
         )
+        self.sign_sprite = self._scale(sign_sheet.get_frame(0, 0))
 
         self.buildings = {
             "inn": self._scale(
@@ -235,7 +241,6 @@ class TownMap:
                 self._load_image("Outdoor decoration/barrels.png")
             ),
             "well": self._scale(self._load_image("Outdoor decoration/Well.png")),
-            "signs": self._scale(self._load_image("Outdoor decoration/Signs.png")),
             "hay_bales": self._scale(
                 self._load_image("Outdoor decoration/Hay_Bales.png")
             ),
@@ -351,9 +356,15 @@ class TownMap:
         self._blit_object(self.props["fences"], 21, 10)
         self._blit_object(self.props["fences"], 3, 10)
 
-        # Road intersection decorations - signs only for now
-        # South entrance sign
-        self._blit_object(self.props["signs"], 12, 20)
+        # Road intersection decorations - signs at key intersections
+        # South entrance where road meets the oval loop
+        self._blit_object(self.sign_sprite, 13, 19)
+        # North intersection where market branch meets the loop
+        self._blit_object(self.sign_sprite, 11, 8)
+        # West intersection at blacksmith
+        self._blit_object(self.sign_sprite, 6, 12)
+        # East intersection at housing area
+        self._blit_object(self.sign_sprite, 18, 10)
 
         # NPCs - placed near their workplaces
         self._blit_object(self.npc_sprites["bartender"], 19, 14)
