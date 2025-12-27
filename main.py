@@ -236,12 +236,15 @@ class TownMap:
             ),
             "well": self._scale(self._load_image("Outdoor decoration/Well.png")),
             "signs": self._scale(self._load_image("Outdoor decoration/Signs.png")),
+            "hay_bales": self._scale(
+                self._load_image("Outdoor decoration/Hay_Bales.png")
+            ),
+            "fences": self._scale(
+                self._load_image("Outdoor decoration/Fences.png")
+            ),
         }
 
         self.npc_sprites = {
-            "fisher": self._scale(
-                self._load_image("NPCs (Premade)/Fisherman_Fin.png")
-            ),
             "bartender": self._scale(
                 self._load_image("NPCs (Premade)/Bartender_Bruno.png")
             ),
@@ -277,10 +280,12 @@ class TownMap:
         self.surface.blit(sprite, rect.topleft)
 
     def _build_map(self) -> None:
+        # Ground layer - grass everywhere
         for y in range(self.rows):
             for x in range(self.columns):
                 self._blit_tile(self.grass_tile, x, y)
 
+        # Main road oval loop
         loop_left, loop_right = 6, 18
         loop_top, loop_bottom = 8, 19
         for x in range(loop_left, loop_right + 1):
@@ -290,75 +295,109 @@ class TownMap:
             self._blit_tile(self.road_tile, loop_left, y)
             self._blit_tile(self.road_tile, loop_right, y)
 
+        # South entrance road
         center_x = self.columns // 2
         for y in range(loop_bottom + 1, self.rows):
             self._blit_tile(self.road_tile, center_x, y)
 
+        # Central plaza (5x5 cobble square)
         plaza_left, plaza_top = 10, 11
         for y in range(plaza_top, plaza_top + 5):
             for x in range(plaza_left, plaza_left + 5):
                 self._blit_tile(self.road_tile, x, y)
 
+        # North branch to market stalls
         for y in range(loop_top - 3, loop_top):
             self._blit_tile(self.road_tile, center_x, y)
-        for x in range(loop_right + 1, loop_right + 4):
-            self._blit_tile(self.road_tile, x, 13)
+
+        # West branch to blacksmith
         for x in range(loop_left - 3, loop_left):
             self._blit_tile(self.road_tile, x, 13)
-        for x in range(loop_right + 1, loop_right + 4):
+
+        # East branches for houses
+        for x in range(loop_right + 1, loop_right + 3):
             self._blit_tile(self.road_tile, x, 9)
-        for y in range(loop_top - 2, loop_top + 1):
-            self._blit_tile(self.road_tile, loop_right + 2, y)
-        for y in range(loop_bottom + 1, loop_bottom + 5):
-            self._blit_tile(self.road_tile, 16, y)
 
-        for x in range(21, 24):
-            for y in range(12, 15):
-                self._blit_tile(self.water_tile, x, y)
-        self.surface.blit(
-            self.bridge,
-            (
-                20 * self.tile_size,
-                13 * self.tile_size,
-            ),
-        )
+        # South residential path
+        for y in range(loop_bottom + 1, loop_bottom + 4):
+            self._blit_tile(self.road_tile, 8, y)
 
+        # Buildings - placed strategically around the loop
         self._blit_object(self.buildings["inn"], 18, 13)
-        self._blit_object(self.props["signs"], 17, 14)
+        self._blit_object(self.props["signs"], 19, 14)
         self._blit_object(self.buildings["blacksmith"], 6, 13)
-        self._blit_object(self.props["signs"], 7, 14)
+        self._blit_object(self.props["signs"], 5, 14)
         self._blit_object(self.buildings["stalls"], 12, 5)
-        self._blit_object(self.buildings["house_1"], 14, 9)
-        self._blit_object(self.buildings["house_2"], 16, 9)
-        self._blit_object(self.buildings["house_3"], 8, 9)
-        self._blit_object(self.buildings["house_4"], 6, 9)
-        self._blit_object(self.buildings["house_5"], 7, 18)
-        self._blit_object(self.props["well"], 8, 11)
 
+        # Houses - arranged for a cozy residential feel with road access
+        self._blit_object(self.buildings["house_1"], 20, 9)
+        self._blit_object(self.buildings["house_2"], 16, 9)
+        self._blit_object(self.buildings["house_3"], 4, 13)
+        self._blit_object(self.buildings["house_4"], 8, 22)
+        self._blit_object(self.buildings["house_5"], 8, 9)
+
+        # Well in residential area
+        self._blit_object(self.props["well"], 4, 12)
+
+        # Plaza decorations - fountain centerpiece with benches, lanterns, flowers
         self._blit_object(self.props["fountain"], 12, 13)
         self._blit_object(self.props["benches"], 11, 12)
-        self._blit_object(self.props["benches"], 11, 15)
+        self._blit_object(self.props["benches"], 13, 14)
         self._blit_object(self.props["lantern"], 10, 11)
         self._blit_object(self.props["lantern"], 14, 11)
         self._blit_object(self.props["lantern"], 10, 15)
         self._blit_object(self.props["lantern"], 14, 15)
         self._blit_object(self.props["flowers"], 9, 13)
         self._blit_object(self.props["flowers"], 15, 13)
-        self._blit_object(self.props["barrels"], 15, 14)
+        self._blit_object(self.props["flowers"], 12, 16)
 
-        self._blit_object(self.npc_sprites["fisher"], 20, 15)
-        self._blit_object(self.npc_sprites["bartender"], 18, 15)
-        self._blit_object(self.npc_sprites["miner"], 6, 15)
+        # Additional town decorations - create a lived-in feeling
+        self._blit_object(self.props["barrels"], 19, 12)
+        self._blit_object(self.props["barrels"], 5, 12)
+        self._blit_object(self.props["barrels"], 7, 14)
+        self._blit_object(self.props["flowers"], 11, 6)
+        self._blit_object(self.props["flowers"], 13, 6)
+        self._blit_object(self.props["flowers"], 20, 10)
+        self._blit_object(self.props["flowers"], 16, 10)
+        self._blit_object(self.props["flowers"], 4, 14)
+        self._blit_object(self.props["hay_bales"], 9, 21)
+        self._blit_object(self.props["hay_bales"], 7, 21)
+        self._blit_object(self.props["fences"], 21, 10)
+        self._blit_object(self.props["fences"], 3, 10)
+        self._blit_object(self.props["lantern"], 8, 23)
+        self._blit_object(self.props["lantern"], 20, 10)
+
+        # NPCs - placed near their workplaces
+        self._blit_object(self.npc_sprites["bartender"], 19, 14)
+        self._blit_object(self.npc_sprites["miner"], 5, 14)
         self._blit_object(self.npc_sprites["chef"], 12, 7)
 
+        # Trees - frame the town boundaries for a sheltered feel
         tree_positions = [
-            (3, 4, "oak"),
-            (11, 4, "oak"),
-            (19, 4, "oak"),
-            (3, 12, "birch"),
-            (3, 20, "birch"),
-            (21, 10, "spruce"),
-            (22, 18, "spruce"),
+            # North boundary - dense tree line
+            (2, 3, "oak"),
+            (5, 2, "birch"),
+            (8, 3, "oak"),
+            (11, 2, "oak"),
+            (15, 3, "birch"),
+            (18, 2, "oak"),
+            (21, 3, "spruce"),
+            (23, 4, "birch"),
+            # West boundary
+            (1, 7, "birch"),
+            (2, 11, "oak"),
+            (1, 15, "birch"),
+            (2, 19, "oak"),
+            (1, 23, "spruce"),
+            # East boundary
+            (23, 8, "spruce"),
+            (22, 12, "birch"),
+            (23, 16, "oak"),
+            (22, 20, "spruce"),
+            (23, 24, "birch"),
+            # South boundary - lighter
+            (6, 24, "birch"),
+            (18, 24, "spruce"),
         ]
         for x, y, tree in tree_positions:
             self._blit_object(self.trees[tree], x, y)
