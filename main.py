@@ -324,9 +324,7 @@ class TownMap:
 
         # Buildings - placed strategically around the loop
         self._blit_object(self.buildings["inn"], 18, 13)
-        self._blit_object(self.props["signs"], 19, 14)
         self._blit_object(self.buildings["blacksmith"], 6, 13)
-        self._blit_object(self.props["signs"], 5, 14)
         self._blit_object(self.buildings["stalls"], 12, 5)
 
         # Houses - arranged for a cozy residential feel with road access
@@ -339,33 +337,41 @@ class TownMap:
         # Well in residential area
         self._blit_object(self.props["well"], 4, 12)
 
-        # Plaza decorations - fountain centerpiece with benches, lanterns, flowers
+        # Plaza decorations - fountain centerpiece with benches
         self._blit_object(self.props["fountain"], 12, 13)
         self._blit_object(self.props["benches"], 11, 12)
         self._blit_object(self.props["benches"], 13, 14)
-        self._blit_object(self.props["lantern"], 10, 11)
-        self._blit_object(self.props["lantern"], 14, 11)
-        self._blit_object(self.props["lantern"], 10, 15)
-        self._blit_object(self.props["lantern"], 14, 15)
-        self._blit_object(self.props["flowers"], 9, 13)
-        self._blit_object(self.props["flowers"], 15, 13)
-        self._blit_object(self.props["flowers"], 12, 16)
 
         # Additional town decorations - create a lived-in feeling
         self._blit_object(self.props["barrels"], 19, 12)
         self._blit_object(self.props["barrels"], 5, 12)
         self._blit_object(self.props["barrels"], 7, 14)
-        self._blit_object(self.props["flowers"], 11, 6)
-        self._blit_object(self.props["flowers"], 13, 6)
-        self._blit_object(self.props["flowers"], 20, 10)
-        self._blit_object(self.props["flowers"], 16, 10)
-        self._blit_object(self.props["flowers"], 4, 14)
         self._blit_object(self.props["hay_bales"], 9, 21)
         self._blit_object(self.props["hay_bales"], 7, 21)
         self._blit_object(self.props["fences"], 21, 10)
         self._blit_object(self.props["fences"], 3, 10)
-        self._blit_object(self.props["lantern"], 8, 23)
-        self._blit_object(self.props["lantern"], 20, 10)
+
+        # Road intersection decorations - lanterns and signs at key intersections only
+        # Northwest corner (loop_left, loop_top)
+        self._blit_object(self.props["lantern"], 6, 8)
+        self._blit_object(self.props["signs"], 6, 8)
+        # Northeast corner (loop_right, loop_top)
+        self._blit_object(self.props["lantern"], 18, 8)
+        self._blit_object(self.props["signs"], 18, 8)
+        # Southwest corner (loop_left, loop_bottom)
+        self._blit_object(self.props["lantern"], 6, 19)
+        self._blit_object(self.props["signs"], 6, 19)
+        # Southeast corner (loop_right, loop_bottom)
+        self._blit_object(self.props["lantern"], 18, 19)
+        self._blit_object(self.props["signs"], 18, 19)
+        # North branch intersection (center_x, loop_top)
+        self._blit_object(self.props["lantern"], 12, 8)
+        # South entrance intersection (center_x, loop_bottom)
+        self._blit_object(self.props["lantern"], 12, 19)
+        # West branch intersection (loop_left, 13)
+        self._blit_object(self.props["lantern"], 6, 13)
+        # East branch intersection (loop_right, 9)
+        self._blit_object(self.props["lantern"], 18, 9)
 
         # NPCs - placed near their workplaces
         self._blit_object(self.npc_sprites["bartender"], 19, 14)
