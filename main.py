@@ -351,27 +351,18 @@ class TownMap:
         self._blit_object(self.props["fences"], 21, 10)
         self._blit_object(self.props["fences"], 3, 10)
 
-        # Road intersection decorations - lanterns and signs at key intersections only
-        # Northwest corner (loop_left, loop_top)
-        self._blit_object(self.props["lantern"], 6, 8)
-        self._blit_object(self.props["signs"], 6, 8)
-        # Northeast corner (loop_right, loop_top)
-        self._blit_object(self.props["lantern"], 18, 8)
-        self._blit_object(self.props["signs"], 18, 8)
-        # Southwest corner (loop_left, loop_bottom)
-        self._blit_object(self.props["lantern"], 6, 19)
-        self._blit_object(self.props["signs"], 6, 19)
-        # Southeast corner (loop_right, loop_bottom)
-        self._blit_object(self.props["lantern"], 18, 19)
-        self._blit_object(self.props["signs"], 18, 19)
-        # North branch intersection (center_x, loop_top)
+        # Road intersection decorations - minimal lanterns and signs for atmosphere
+        # Plaza entrance lantern
         self._blit_object(self.props["lantern"], 12, 8)
-        # South entrance intersection (center_x, loop_bottom)
+        # South entrance lantern with sign
         self._blit_object(self.props["lantern"], 12, 19)
-        # West branch intersection (loop_left, 13)
-        self._blit_object(self.props["lantern"], 6, 13)
-        # East branch intersection (loop_right, 9)
-        self._blit_object(self.props["lantern"], 18, 9)
+        self._blit_object(self.props["signs"], 12, 20)
+        # Northwest corner lantern
+        self._blit_object(self.props["lantern"], 6, 8)
+        # Southeast corner lantern
+        self._blit_object(self.props["lantern"], 18, 19)
+        # Market area lantern
+        self._blit_object(self.props["lantern"], 12, 6)
 
         # NPCs - placed near their workplaces
         self._blit_object(self.npc_sprites["bartender"], 19, 14)
