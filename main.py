@@ -141,10 +141,17 @@ class Camera:
     def update(self, target_rect: pygame.Rect) -> None:
         desired_x = target_rect.centerx - self.screen_width / 2
         desired_y = target_rect.centery - self.screen_height / 2
-        max_x = max(0, self.map_width - self.screen_width)
-        max_y = max(0, self.map_height - self.screen_height)
-        self.offset.x = max(0, min(desired_x, max_x))
-        self.offset.y = max(0, min(desired_y, max_y))
+        if self.map_width <= self.screen_width:
+            self.offset.x = -(self.screen_width - self.map_width) / 2
+        else:
+            max_x = self.map_width - self.screen_width
+            self.offset.x = max(0, min(desired_x, max_x))
+
+        if self.map_height <= self.screen_height:
+            self.offset.y = -(self.screen_height - self.map_height) / 2
+        else:
+            max_y = self.map_height - self.screen_height
+            self.offset.y = max(0, min(desired_y, max_y))
 
 
 def _get_scale_factor(screen_size: tuple[int, int]) -> float:
@@ -207,7 +214,7 @@ def main() -> None:
                     interior_maps[entrance.building_name] = interior_map
                 current_map = interior_map
                 active_building = entrance.building_name
-                player.rect.center = interior_map.entry_spawn
+                player.rect.midbottom = interior_map.entry_spawn
                 camera = Camera(screen_size, current_map.map_size)
         else:
             if player.rect.colliderect(current_map.exit_rect) and active_building:
