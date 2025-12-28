@@ -1,6 +1,15 @@
+from dataclasses import dataclass
+
 import pygame
 
-from sprites import SpriteSheet, BASE_SCALE, TILE_SIZE, TOWN_ASSETS_DIR, BASE_DIR
+from sprites import BASE_DIR, BASE_SCALE, TILE_SIZE, TOWN_ASSETS_DIR, SpriteSheet
+
+
+@dataclass(frozen=True)
+class BuildingEntrance:
+    building_name: str
+    door_rect: pygame.Rect
+    exterior_spawn: pygame.Vector2
 
 
 class TownMap:
@@ -16,9 +25,11 @@ class TownMap:
         )
         self.surface = pygame.Surface(self.map_size, pygame.SRCALPHA)
         self.building_colliders: list[pygame.Rect] = []
+        self.building_entrances: list[BuildingEntrance] = []
         self._load_assets()
         self._build_map()
         self._build_collision_rects()
+        self.colliders = self.building_colliders
 
     def _load_image(self, relative_path: str) -> pygame.Surface:
         image_path = TOWN_ASSETS_DIR / relative_path
@@ -365,14 +376,14 @@ class TownMap:
 
     def _build_collision_rects(self) -> None:
         building_mapping = {
-            "I": ("inn", self.buildings["inn"]),
-            "B": ("blacksmith", self.buildings["blacksmith"]),
-            "S": ("stalls", self.buildings["stalls"]),
-            "1": ("house_1", self.buildings["house_1"]),
-            "2": ("house_2", self.buildings["house_2"]),
-            "3": ("house_3", self.buildings["house_3"]),
-            "4": ("house_4", self.buildings["house_4"]),
-            "5": ("house_5", self.buildings["house_5"]),
+            "I": ("inn", self.buildings["inn"], True),
+            "B": ("blacksmith", self.buildings["blacksmith"], True),
+            "S": ("stalls", self.buildings["stalls"], False),
+            "1": ("house_1", self.buildings["house_1"], True),
+            "2": ("house_2", self.buildings["house_2"], True),
+            "3": ("house_3", self.buildings["house_3"], True),
+            "4": ("house_4", self.buildings["house_4"], True),
+            "5": ("house_5", self.buildings["house_5"], True),
         }
         doorway_offsets = {
             "inn": 0,
@@ -391,7 +402,7 @@ class TownMap:
                 building_entry = building_mapping.get(tile)
                 if building_entry is None:
                     continue
-                building_name, sprite = building_entry
+                building_name, sprite, has_entrance = building_entry
                 rect = sprite.get_rect()
                 rect.midbottom = (
                     x * self.tile_size + self.tile_size // 2,
@@ -419,6 +430,19 @@ class TownMap:
                 )
                 doorway_rect = pygame.Rect(0, 0, doorway_width, doorway_depth)
                 doorway_rect.midbottom = (doorway_center_x, shrunken_rect.bottom)
+
+                if has_entrance:
+                    exterior_spawn = pygame.Vector2(
+                        doorway_rect.centerx,
+                        doorway_rect.bottom + self.tile_size // 2,
+                    )
+                    self.building_entrances.append(
+                        BuildingEntrance(
+                            building_name=building_name,
+                            door_rect=doorway_rect,
+                            exterior_spawn=exterior_spawn,
+                        )
+                    )
 
                 top_height = shrunken_rect.height - doorway_rect.height
                 if top_height > 0:
@@ -449,6 +473,147 @@ class TownMap:
                         doorway_rect.height,
                     )
                     self.building_colliders.append(right_rect)
+
+    def get_entrance(self, player_rect: pygame.Rect) -> BuildingEntrance | None:
+        for entrance in self.building_entrances:
+            if player_rect.colliderect(entrance.door_rect):
+                return entrance
+        return None
+
+
+class InteriorMap:
+    def __init__(self, scale_factor: float, building_name: str):
+        self.scale_factor = scale_factor
+        self.building_name = building_name
+        self.tile_size = int(TILE_SIZE * BASE_SCALE * scale_factor)
+        self.columns = 12
+        self.rows = 9
+        self.map_size = (
+            self.columns * self.tile_size,
+            self.rows * self.tile_size,
+        )
+        self.surface = pygame.Surface(self.map_size, pygame.SRCALPHA)
+        self.colliders: list[pygame.Rect] = []
+        self.exit_rect = pygame.Rect(0, 0, 0, 0)
+        self.entry_spawn = pygame.Vector2(0, 0)
+        self._load_assets()
+        self._build_map()
+        self._build_colliders()
+
+    def _scale_to_tile(self, surface: pygame.Surface) -> pygame.Surface:
+        return pygame.transform.scale(surface, (self.tile_size, self.tile_size))
+
+    def _load_assets(self) -> None:
+        floor_sheet = SpriteSheet(
+            TOWN_ASSETS_DIR / "Buildings" / "Houses_Interiors" / "Wood_Floor_Tiles.png",
+            TILE_SIZE,
+            TILE_SIZE,
+        )
+        wall_sheet = SpriteSheet(
+            TOWN_ASSETS_DIR / "Buildings" / "Houses_Interiors" / "Interior_Walls.png",
+            TILE_SIZE,
+            TILE_SIZE,
+        )
+        wood_fillers = SpriteSheet(
+            TOWN_ASSETS_DIR / "Buildings" / "Houses_Interiors" / "Wood_Wall_Fillers.png",
+            TILE_SIZE,
+            TILE_SIZE,
+        )
+        brick_fillers = SpriteSheet(
+            TOWN_ASSETS_DIR / "Buildings" / "Houses_Interiors" / "Brick_Wall_Fillers.png",
+            TILE_SIZE,
+            TILE_SIZE,
+        )
+        stone_fillers = SpriteSheet(
+            TOWN_ASSETS_DIR / "Buildings" / "Houses_Interiors" / "Stone_Wall_Fillers.png",
+            TILE_SIZE,
+            TILE_SIZE,
+        )
+        stair_sheet = SpriteSheet(
+            TOWN_ASSETS_DIR / "Buildings" / "Houses_Interiors" / "Wood_Stairs.png",
+            TILE_SIZE,
+            TILE_SIZE,
+        )
+
+        self.floor_tile = self._scale_to_tile(floor_sheet.get_frame(0, 0))
+        self.wall_tile = self._scale_to_tile(wall_sheet.get_frame(1, 0))
+        self.corner_tile = self._scale_to_tile(wall_sheet.get_frame(0, 0))
+        self.door_tile = self._scale_to_tile(floor_sheet.get_frame(1, 0))
+        self.stairs_tile = self._scale_to_tile(stair_sheet.get_frame(0, 0))
+
+        if self.building_name == "blacksmith":
+            self.wall_filler = self._scale_to_tile(brick_fillers.get_frame(0, 0))
+        elif self.building_name == "inn":
+            self.wall_filler = self._scale_to_tile(stone_fillers.get_frame(0, 0))
+        else:
+            self.wall_filler = self._scale_to_tile(wood_fillers.get_frame(0, 0))
+
+    def _blit_tile(self, tile: pygame.Surface, grid_x: int, grid_y: int) -> None:
+        self.surface.blit(tile, (grid_x * self.tile_size, grid_y * self.tile_size))
+
+    def _build_map(self) -> None:
+        for y in range(self.rows):
+            for x in range(self.columns):
+                self._blit_tile(self.floor_tile, x, y)
+
+        door_width_tiles = 2
+        door_start = (self.columns - door_width_tiles) // 2
+        bottom_y = self.rows - 1
+        for x in range(self.columns):
+            if bottom_y == self.rows - 1 and door_start <= x < door_start + door_width_tiles:
+                self._blit_tile(self.door_tile, x, bottom_y)
+                continue
+            tile = self.corner_tile if x in (0, self.columns - 1) else self.wall_tile
+            self._blit_tile(tile, x, 0)
+            self._blit_tile(tile, x, bottom_y)
+
+        for y in range(1, self.rows - 1):
+            self._blit_tile(self.wall_tile, 0, y)
+            self._blit_tile(self.wall_tile, self.columns - 1, y)
+
+        mid_x = self.columns // 2
+        self._blit_tile(self.wall_filler, mid_x, 1)
+        self._blit_tile(self.stairs_tile, mid_x, bottom_y - 1)
+
+    def _build_colliders(self) -> None:
+        door_width_tiles = 2
+        door_start = (self.columns - door_width_tiles) // 2
+        door_left = door_start * self.tile_size
+        door_width = door_width_tiles * self.tile_size
+        bottom_y = (self.rows - 1) * self.tile_size
+        self.exit_rect = pygame.Rect(door_left, bottom_y, door_width, self.tile_size)
+        self.entry_spawn = pygame.Vector2(
+            self.exit_rect.centerx,
+            self.exit_rect.top - self.tile_size // 2,
+        )
+
+        self.colliders.append(pygame.Rect(0, 0, self.map_size[0], self.tile_size))
+        self.colliders.append(pygame.Rect(0, 0, self.tile_size, self.map_size[1]))
+        self.colliders.append(
+            pygame.Rect(
+                self.map_size[0] - self.tile_size,
+                0,
+                self.tile_size,
+                self.map_size[1],
+            )
+        )
+        if door_left > 0:
+            self.colliders.append(
+                pygame.Rect(0, bottom_y, door_left, self.tile_size)
+            )
+        right_start = door_left + door_width
+        if right_start < self.map_size[0]:
+            self.colliders.append(
+                pygame.Rect(
+                    right_start,
+                    bottom_y,
+                    self.map_size[0] - right_start,
+                    self.tile_size,
+                )
+            )
+
+    def draw(self, screen: pygame.Surface, offset: pygame.Vector2) -> None:
+        screen.blit(self.surface, (-offset.x, -offset.y))
 
     def draw(self, screen: pygame.Surface, offset: pygame.Vector2) -> None:
         screen.blit(self.surface, (-offset.x, -offset.y))
