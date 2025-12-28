@@ -366,7 +366,7 @@ class TownMap:
         # Complete the 3-tile wide vertical path with 3-tile tall horizontal branch
         # Top row of L
         self._blit_tile(self.path_tiles["horizontal_top"], loop_left, 24)
-        self._blit_tile(self.path_tiles["center"], loop_left + 1, 24)
+        self._blit_tile(self.path_tiles["horizontal_top"], loop_left + 1, 24)
         self._blit_tile(self.path_tiles["horizontal_top_right"], loop_left + 2, 24)
         # Middle row of L
         self._blit_tile(self.path_tiles["center"], loop_left, 25)
