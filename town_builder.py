@@ -384,13 +384,8 @@ class TownMap:
                     x * self.tile_size + self.tile_size // 2,
                     y * self.tile_size + self.tile_size,
                 )
-                collision_height = min(self.tile_size, rect.height)
-                collision_rect = pygame.Rect(
-                    rect.left,
-                    rect.bottom - collision_height,
-                    rect.width,
-                    collision_height,
-                )
+                visible_rect = sprite.get_bounding_rect()
+                collision_rect = visible_rect.move(rect.topleft)
                 self.building_colliders.append(collision_rect)
 
     def draw(self, screen: pygame.Surface, offset: pygame.Vector2) -> None:
