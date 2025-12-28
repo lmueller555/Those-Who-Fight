@@ -517,16 +517,6 @@ class InteriorMap:
             TILE_SIZE,
             TILE_SIZE,
         )
-        wood_fillers = SpriteSheet(
-            TOWN_ASSETS_DIR / "Buildings" / "Houses_Interiors" / "Wood_Wall_Fillers.png",
-            TILE_SIZE,
-            TILE_SIZE,
-        )
-        brick_fillers = SpriteSheet(
-            TOWN_ASSETS_DIR / "Buildings" / "Houses_Interiors" / "Brick_Wall_Fillers.png",
-            TILE_SIZE,
-            TILE_SIZE,
-        )
         stone_fillers = SpriteSheet(
             TOWN_ASSETS_DIR / "Buildings" / "Houses_Interiors" / "Stone_Wall_Fillers.png",
             TILE_SIZE,
@@ -538,18 +528,17 @@ class InteriorMap:
             TILE_SIZE,
         )
 
-        self.floor_tile = self._scale_to_tile(floor_sheet.get_frame(0, 0))
-        self.wall_tile = self._scale_to_tile(wall_sheet.get_frame(1, 0))
-        self.corner_tile = self._scale_to_tile(wall_sheet.get_frame(0, 0))
-        self.door_tile = self._scale_to_tile(floor_sheet.get_frame(1, 0))
+        self.floor_tiles = [
+            self._scale_to_tile(floor_sheet.get_frame(0, 0)),
+            self._scale_to_tile(floor_sheet.get_frame(1, 0)),
+            self._scale_to_tile(floor_sheet.get_frame(2, 0)),
+            self._scale_to_tile(floor_sheet.get_frame(3, 0)),
+        ]
+        self.wall_tile = self._scale_to_tile(wall_sheet.get_frame(4, 3))
+        self.corner_tile = self.wall_tile
+        self.door_tile = self._scale_to_tile(floor_sheet.get_frame(6, 0))
         self.stairs_tile = self._scale_to_tile(stair_sheet.get_frame(0, 0))
-
-        if self.building_name == "blacksmith":
-            self.wall_filler = self._scale_to_tile(brick_fillers.get_frame(0, 0))
-        elif self.building_name == "inn":
-            self.wall_filler = self._scale_to_tile(stone_fillers.get_frame(0, 0))
-        else:
-            self.wall_filler = self._scale_to_tile(wood_fillers.get_frame(0, 0))
+        self.wall_filler = self._scale_to_tile(stone_fillers.get_frame(0, 0))
 
     def _blit_tile(self, tile: pygame.Surface, grid_x: int, grid_y: int) -> None:
         self.surface.blit(tile, (grid_x * self.tile_size, grid_y * self.tile_size))
@@ -557,7 +546,8 @@ class InteriorMap:
     def _build_map(self) -> None:
         for y in range(self.rows):
             for x in range(self.columns):
-                self._blit_tile(self.floor_tile, x, y)
+                tile = self.floor_tiles[(x + y) % len(self.floor_tiles)]
+                self._blit_tile(tile, x, y)
 
         door_width_tiles = 2
         door_start = (self.columns - door_width_tiles) // 2
@@ -569,6 +559,9 @@ class InteriorMap:
             tile = self.corner_tile if x in (0, self.columns - 1) else self.wall_tile
             self._blit_tile(tile, x, 0)
             self._blit_tile(tile, x, bottom_y)
+
+        for x in range(door_start, door_start + door_width_tiles):
+            self._blit_tile(self.door_tile, x, bottom_y - 1)
 
         for y in range(1, self.rows - 1):
             self._blit_tile(self.wall_tile, 0, y)
