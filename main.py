@@ -41,13 +41,18 @@ class Player(pygame.sprite.Sprite):
         self.rect = self.image.get_rect(center=position)
 
     def _load_animations(self) -> dict[str, list[pygame.Surface]]:
-        animations = {
-            "down": self.sprite_sheet.get_row_frames(0, 6),
-            "left": self.sprite_sheet.get_row_frames(1, 6),
-            "right": self.sprite_sheet.get_row_frames(2, 6),
-            "up": self.sprite_sheet.get_row_frames(3, 6),
+        down_frames = self.sprite_sheet.get_row_frames(0, 6)
+        right_frames = self.sprite_sheet.get_row_frames(1, 6)
+        up_frames = self.sprite_sheet.get_row_frames(2, 6)
+        left_frames = [
+            pygame.transform.flip(frame, True, False) for frame in right_frames
+        ]
+        return {
+            "down": down_frames,
+            "left": left_frames,
+            "right": right_frames,
+            "up": up_frames,
         }
-        return animations
 
     def handle_input(self, keys: pygame.key.ScancodeWrapper) -> None:
         self.direction.update(0, 0)
