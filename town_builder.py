@@ -365,20 +365,33 @@ class TownMap:
 
     def _build_collision_rects(self) -> None:
         building_mapping = {
-            "I": self.buildings["inn"],
-            "B": self.buildings["blacksmith"],
-            "S": self.buildings["stalls"],
-            "1": self.buildings["house_1"],
-            "2": self.buildings["house_2"],
-            "3": self.buildings["house_3"],
-            "4": self.buildings["house_4"],
-            "5": self.buildings["house_5"],
+            "I": ("inn", self.buildings["inn"]),
+            "B": ("blacksmith", self.buildings["blacksmith"]),
+            "S": ("stalls", self.buildings["stalls"]),
+            "1": ("house_1", self.buildings["house_1"]),
+            "2": ("house_2", self.buildings["house_2"]),
+            "3": ("house_3", self.buildings["house_3"]),
+            "4": ("house_4", self.buildings["house_4"]),
+            "5": ("house_5", self.buildings["house_5"]),
         }
+        doorway_offsets = {
+            "inn": 0,
+            "blacksmith": -3,
+            "house_1": -1,
+            "house_2": -2,
+            "house_3": 0,
+            "house_4": -1,
+            "house_5": 0,
+            "stalls": 0,
+        }
+        doorway_width_tiles = 2
+        doorway_depth_tiles = 2
         for y, row in enumerate(self.ascii_map):
             for x, tile in enumerate(row):
-                sprite = building_mapping.get(tile)
-                if sprite is None:
+                building_entry = building_mapping.get(tile)
+                if building_entry is None:
                     continue
+                building_name, sprite = building_entry
                 rect = sprite.get_rect()
                 rect.midbottom = (
                     x * self.tile_size + self.tile_size // 2,
@@ -391,7 +404,51 @@ class TownMap:
                 new_height = max(1, collision_rect.height - 2 * shrink_by)
                 shrunken_rect = pygame.Rect(0, 0, new_width, new_height)
                 shrunken_rect.center = collision_rect.center
-                self.building_colliders.append(shrunken_rect)
+                doorway_offset_tiles = doorway_offsets.get(building_name, 0)
+                doorway_center_x = shrunken_rect.centerx + int(
+                    doorway_offset_tiles * self.tile_size
+                )
+                doorway_width = doorway_width_tiles * self.tile_size
+                doorway_depth = min(
+                    doorway_depth_tiles * self.tile_size, shrunken_rect.height
+                )
+                doorway_half_width = doorway_width // 2
+                doorway_center_x = max(
+                    shrunken_rect.left + doorway_half_width,
+                    min(doorway_center_x, shrunken_rect.right - doorway_half_width),
+                )
+                doorway_rect = pygame.Rect(0, 0, doorway_width, doorway_depth)
+                doorway_rect.midbottom = (doorway_center_x, shrunken_rect.bottom)
+
+                top_height = shrunken_rect.height - doorway_rect.height
+                if top_height > 0:
+                    top_rect = pygame.Rect(
+                        shrunken_rect.left,
+                        shrunken_rect.top,
+                        shrunken_rect.width,
+                        top_height,
+                    )
+                    self.building_colliders.append(top_rect)
+
+                left_width = doorway_rect.left - shrunken_rect.left
+                if left_width > 0:
+                    left_rect = pygame.Rect(
+                        shrunken_rect.left,
+                        doorway_rect.top,
+                        left_width,
+                        doorway_rect.height,
+                    )
+                    self.building_colliders.append(left_rect)
+
+                right_width = shrunken_rect.right - doorway_rect.right
+                if right_width > 0:
+                    right_rect = pygame.Rect(
+                        doorway_rect.right,
+                        doorway_rect.top,
+                        right_width,
+                        doorway_rect.height,
+                    )
+                    self.building_colliders.append(right_rect)
 
     def draw(self, screen: pygame.Surface, offset: pygame.Vector2) -> None:
         screen.blit(self.surface, (-offset.x, -offset.y))
