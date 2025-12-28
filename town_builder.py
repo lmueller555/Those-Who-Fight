@@ -384,7 +384,7 @@ class TownMap:
             "house_5": 0,
             "stalls": 0,
         }
-        doorway_width_tiles = 2
+        doorway_width_tiles = 1
         doorway_depth_tiles = 2
         for y, row in enumerate(self.ascii_map):
             for x, tile in enumerate(row):
