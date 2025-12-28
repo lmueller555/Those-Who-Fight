@@ -366,16 +366,16 @@ class TownMap:
         # Complete the 3-tile wide vertical path with 3-tile tall horizontal branch
         # Top row of L
         self._blit_tile(self.path_tiles["horizontal_top_left"], loop_left, 24)
-        self._blit_tile(self.path_tiles["inner_corner_top_left"], loop_left + 1, 24)
-        self._blit_tile(self.path_tiles["vertical_left"], loop_left + 2, 24)
+        self._blit_tile(self.path_tiles["horizontal_top"], loop_left + 1, 24)
+        self._blit_tile(self.path_tiles["inner_corner_top_right"], loop_left + 2, 24)
         # Middle row of L
         self._blit_tile(self.path_tiles["vertical_left"], loop_left, 25)
         self._blit_tile(self.path_tiles["center"], loop_left + 1, 25)
-        self._blit_tile(self.path_tiles["center"], loop_left + 2, 25)
+        self._blit_tile(self.path_tiles["vertical_right"], loop_left + 2, 25)
         # Bottom row of L
         self._blit_tile(self.path_tiles["horizontal_bottom_left"], loop_left, 26)
-        self._blit_tile(self.path_tiles["inner_corner_bottom_left"], loop_left + 1, 26)
-        self._blit_tile(self.path_tiles["vertical_left"], loop_left + 2, 26)
+        self._blit_tile(self.path_tiles["horizontal_bottom"], loop_left + 1, 26)
+        self._blit_tile(self.path_tiles["inner_corner_bottom_right"], loop_left + 2, 26)
 
         # East branches for houses (horizontal, 3 tiles wide)
         for x in range(loop_right + 1, loop_right + 6):  # Was loop_right + 3
@@ -386,16 +386,16 @@ class TownMap:
         # L-intersection where east branch meets right vertical path
         # Complete the 3-tile wide vertical path with 3-tile tall horizontal branch
         # Top row of L
-        self._blit_tile(self.path_tiles["vertical_right"], loop_right - 2, 16)
-        self._blit_tile(self.path_tiles["inner_corner_top_right"], loop_right - 1, 16)
+        self._blit_tile(self.path_tiles["inner_corner_top_left"], loop_right - 2, 16)
+        self._blit_tile(self.path_tiles["horizontal_top"], loop_right - 1, 16)
         self._blit_tile(self.path_tiles["horizontal_top_right"], loop_right, 16)
         # Middle row of L
-        self._blit_tile(self.path_tiles["center"], loop_right - 2, 17)
+        self._blit_tile(self.path_tiles["vertical_left"], loop_right - 2, 17)
         self._blit_tile(self.path_tiles["center"], loop_right - 1, 17)
         self._blit_tile(self.path_tiles["vertical_right"], loop_right, 17)
         # Bottom row of L
-        self._blit_tile(self.path_tiles["vertical_right"], loop_right - 2, 18)
-        self._blit_tile(self.path_tiles["inner_corner_bottom_right"], loop_right - 1, 18)
+        self._blit_tile(self.path_tiles["inner_corner_bottom_left"], loop_right - 2, 18)
+        self._blit_tile(self.path_tiles["horizontal_bottom"], loop_right - 1, 18)
         self._blit_tile(self.path_tiles["horizontal_bottom_right"], loop_right, 18)
 
         # South residential path (vertical, 3 tiles wide - using middle row)
