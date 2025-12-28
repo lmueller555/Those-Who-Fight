@@ -11,7 +11,7 @@ from sprites import (
     PLAYER_TILE_SIZE,
     PLAYER_SHEET,
 )
-from town_builder import TownMap
+from town_builder import InteriorMap, TownMap
 
 
 class Player(pygame.sprite.Sprite):
@@ -175,12 +175,15 @@ def main() -> None:
 
     sprite_sheet = SpriteSheet(PLAYER_SHEET, PLAYER_TILE_SIZE, PLAYER_TILE_SIZE)
     town_map = TownMap(scale_factor)
+    interior_maps: dict[str, InteriorMap] = {}
+    current_map = town_map
     start_position = pygame.Vector2(
         town_map.map_size[0] / 2,
         town_map.map_size[1] - town_map.tile_size * 2,
     )
     player = Player(sprite_sheet, start_position, scale_factor)
-    camera = Camera(screen_size, town_map.map_size)
+    camera = Camera(screen_size, current_map.map_size)
+    active_building: str | None = None
 
     running = True
     while running:
@@ -194,14 +197,38 @@ def main() -> None:
 
         keys = pygame.key.get_pressed()
         player.handle_input(keys)
-        player.update(delta_time, town_map.building_colliders)
+        player.update(delta_time, current_map.colliders)
+        if current_map is town_map:
+            entrance = town_map.get_entrance(player.rect)
+            if entrance is not None:
+                interior_map = interior_maps.get(entrance.building_name)
+                if interior_map is None:
+                    interior_map = InteriorMap(scale_factor, entrance.building_name)
+                    interior_maps[entrance.building_name] = interior_map
+                current_map = interior_map
+                active_building = entrance.building_name
+                player.rect.center = interior_map.entry_spawn
+                camera = Camera(screen_size, current_map.map_size)
+        else:
+            if player.rect.colliderect(current_map.exit_rect) and active_building:
+                entrance = next(
+                    (item for item in town_map.building_entrances
+                     if item.building_name == active_building),
+                    None,
+                )
+                current_map = town_map
+                if entrance is not None:
+                    player.rect.center = entrance.exterior_spawn
+                camera = Camera(screen_size, current_map.map_size)
+                active_building = None
+
         player.rect.clamp_ip(
-            pygame.Rect(0, 0, town_map.map_size[0], town_map.map_size[1])
+            pygame.Rect(0, 0, current_map.map_size[0], current_map.map_size[1])
         )
         camera.update(player.rect)
 
         screen.fill((40, 45, 55))
-        town_map.draw(screen, camera.offset)
+        current_map.draw(screen, camera.offset)
         screen.blit(
             player.image,
             (player.rect.x - camera.offset.x, player.rect.y - camera.offset.y),
