@@ -480,6 +480,9 @@ class TownMap:
                 return entrance
         return None
 
+    def draw(self, screen: pygame.Surface, offset: pygame.Vector2) -> None:
+        screen.blit(self.surface, (-offset.x, -offset.y))
+
 
 class InteriorMap:
     def __init__(self, scale_factor: float, building_name: str):
@@ -611,9 +614,6 @@ class InteriorMap:
                     self.tile_size,
                 )
             )
-
-    def draw(self, screen: pygame.Surface, offset: pygame.Vector2) -> None:
-        screen.blit(self.surface, (-offset.x, -offset.y))
 
     def draw(self, screen: pygame.Surface, offset: pygame.Vector2) -> None:
         screen.blit(self.surface, (-offset.x, -offset.y))
