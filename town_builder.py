@@ -386,7 +386,12 @@ class TownMap:
                 )
                 visible_rect = sprite.get_bounding_rect()
                 collision_rect = visible_rect.move(rect.topleft)
-                self.building_colliders.append(collision_rect)
+                shrink_by = self.tile_size
+                new_width = max(1, collision_rect.width - 2 * shrink_by)
+                new_height = max(1, collision_rect.height - 2 * shrink_by)
+                shrunken_rect = pygame.Rect(0, 0, new_width, new_height)
+                shrunken_rect.center = collision_rect.center
+                self.building_colliders.append(shrunken_rect)
 
     def draw(self, screen: pygame.Surface, offset: pygame.Vector2) -> None:
         screen.blit(self.surface, (-offset.x, -offset.y))
