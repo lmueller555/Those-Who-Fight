@@ -1,7 +1,16 @@
 {
   "permissions": {
     "allow": [
-      "Bash(python main.py:*)"
+      "Bash(python main.py:*)",
+      "Bash(python -c:*)",
+      "Bash(timeout /t 3)",
+      "Bash(timeout:*)",
+      "Bash(powershell -Command \"Start-Sleep -Seconds 3; Get-Content ''c:\\\\Users\\\\lmueller\\\\Desktop\\\\Game Development\\\\Those Who Fight\\\\Those-Who-Fight\\\\debug_tiles.txt''\")",
+      "Bash(powershell -Command \"Start-Sleep -Seconds 5\")",
+      "Bash(dir:*)",
+      "Bash(taskkill:*)",
+      "Bash(findstr:*)",
+      "Bash(python:*)"
     ]
   }
 }

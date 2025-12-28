@@ -8,7 +8,7 @@ from sprites import (
     BASE_WIDTH,
     BASE_HEIGHT,
     FPS,
-    TILE_SIZE,
+    PLAYER_TILE_SIZE,
     PLAYER_SHEET,
 )
 from town_builder import TownMap
@@ -140,7 +140,7 @@ def main() -> None:
     if not PLAYER_SHEET.exists():
         raise FileNotFoundError(f"Missing sprite sheet: {PLAYER_SHEET}")
 
-    sprite_sheet = SpriteSheet(PLAYER_SHEET, TILE_SIZE, TILE_SIZE)
+    sprite_sheet = SpriteSheet(PLAYER_SHEET, PLAYER_TILE_SIZE, PLAYER_TILE_SIZE)
     town_map = TownMap(scale_factor)
     start_position = pygame.Vector2(
         town_map.map_size[0] / 2,

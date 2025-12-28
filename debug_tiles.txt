@@ -1,0 +1,44 @@
+============================================================
+DEBUG: Loading path tiles from Grass_Tiles_1.png
+============================================================
+
+Extracting tiles:
+  Row 4 (top of 3x3): get_frame(1, 4)
+    -> Surface size: (16, 16)
+  Row 5 (middle of 3x3): get_frame(1, 5)
+    -> Surface size: (16, 16)
+  Row 6 (bottom of 3x3): get_frame(1, 6)
+    -> Surface size: (16, 16)
+
+Path tiles dictionary created with keys:
+  - horizontal_top_left
+  - horizontal_top
+  - horizontal_top_right
+  - vertical_left
+  - center
+  - vertical_right
+  - horizontal_bottom_left
+  - horizontal_bottom
+  - horizontal_bottom_right
+  - grass_top_left
+  - grass_top_right
+  - grass_left
+  - grass_right
+  - grass_bottom_left
+  - grass_bottom_right
+  - grass_top
+  - grass_bottom
+============================================================
+
+============================================================
+DEBUG: Rendering vertical path sections
+============================================================
+Vertical range: y from 19 to 36
+Left side x positions: 12, 13, 14
+Right side x positions: 34, 35, 36
+
+Tiles being used for vertical sections:
+  vertical_left: <Surface(76x76x32 SW)>
+  center: <Surface(76x76x32 SW)>
+  vertical_right: <Surface(76x76x32 SW)>
+============================================================

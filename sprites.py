@@ -10,7 +10,8 @@ TOWN_ASSETS_DIR = BASE_DIR / "Cute_Fantasy"
 BASE_WIDTH = 800
 BASE_HEIGHT = 600
 FPS = 60
-TILE_SIZE = 32
+TILE_SIZE = 16  # World/map tile size (grass, paths, etc.)
+PLAYER_TILE_SIZE = 32  # Player sprite tile size
 BASE_SCALE = 2
 
 
