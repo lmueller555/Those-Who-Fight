@@ -63,9 +63,14 @@ class Player(pygame.sprite.Sprite):
         if self.direction.length_squared() > 0:
             self.direction = self.direction.normalize()
             if abs(self.direction.x) > abs(self.direction.y):
-                self.current_direction = "right" if self.direction.x > 0 else "left"
+                new_direction = "right" if self.direction.x > 0 else "left"
             else:
-                self.current_direction = "down" if self.direction.y > 0 else "up"
+                new_direction = "down" if self.direction.y > 0 else "up"
+            if new_direction != self.current_direction:
+                self.current_direction = new_direction
+                self.frame_index = 0
+                self.frame_time = 0.0
+                self._set_image()
 
     def update(
         self, delta_time: float, colliders: list[pygame.Rect]
