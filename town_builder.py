@@ -15,8 +15,10 @@ class TownMap:
             self.rows * self.tile_size,
         )
         self.surface = pygame.Surface(self.map_size, pygame.SRCALPHA)
+        self.building_colliders: list[pygame.Rect] = []
         self._load_assets()
         self._build_map()
+        self._build_collision_rects()
 
     def _load_image(self, relative_path: str) -> pygame.Surface:
         image_path = TOWN_ASSETS_DIR / relative_path
@@ -360,6 +362,36 @@ class TownMap:
                 sprite = object_mapping.get(tile)
                 if sprite is not None:
                     self._blit_object(sprite, x, y)
+
+    def _build_collision_rects(self) -> None:
+        building_mapping = {
+            "I": self.buildings["inn"],
+            "B": self.buildings["blacksmith"],
+            "S": self.buildings["stalls"],
+            "1": self.buildings["house_1"],
+            "2": self.buildings["house_2"],
+            "3": self.buildings["house_3"],
+            "4": self.buildings["house_4"],
+            "5": self.buildings["house_5"],
+        }
+        for y, row in enumerate(self.ascii_map):
+            for x, tile in enumerate(row):
+                sprite = building_mapping.get(tile)
+                if sprite is None:
+                    continue
+                rect = sprite.get_rect()
+                rect.midbottom = (
+                    x * self.tile_size + self.tile_size // 2,
+                    y * self.tile_size + self.tile_size,
+                )
+                collision_height = min(self.tile_size, rect.height)
+                collision_rect = pygame.Rect(
+                    rect.left,
+                    rect.bottom - collision_height,
+                    rect.width,
+                    collision_height,
+                )
+                self.building_colliders.append(collision_rect)
 
     def draw(self, screen: pygame.Surface, offset: pygame.Vector2) -> None:
         screen.blit(self.surface, (-offset.x, -offset.y))

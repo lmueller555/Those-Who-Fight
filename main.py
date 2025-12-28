@@ -67,15 +67,38 @@ class Player(pygame.sprite.Sprite):
             else:
                 self.current_direction = "down" if self.direction.y > 0 else "up"
 
-    def update(self, delta_time: float) -> None:
+    def update(
+        self, delta_time: float, colliders: list[pygame.Rect]
+    ) -> None:
         if self.direction.length_squared() > 0:
             movement = self.direction * self.speed * delta_time
-            self.rect.centerx += movement.x
-            self.rect.centery += movement.y
+            self._move_axis(movement.x, 0, colliders)
+            self._move_axis(0, movement.y, colliders)
             self._animate(delta_time)
         else:
             self.frame_index = 0
             self._set_image()
+
+    def _move_axis(
+        self,
+        dx: float,
+        dy: float,
+        colliders: list[pygame.Rect],
+    ) -> None:
+        if dx == 0 and dy == 0:
+            return
+        self.rect.centerx += dx
+        self.rect.centery += dy
+        for collider in colliders:
+            if self.rect.colliderect(collider):
+                if dx > 0:
+                    self.rect.right = collider.left
+                elif dx < 0:
+                    self.rect.left = collider.right
+                if dy > 0:
+                    self.rect.bottom = collider.top
+                elif dy < 0:
+                    self.rect.top = collider.bottom
 
     def _animate(self, delta_time: float) -> None:
         self.frame_time += delta_time
@@ -161,7 +184,7 @@ def main() -> None:
 
         keys = pygame.key.get_pressed()
         player.handle_input(keys)
-        player.update(delta_time)
+        player.update(delta_time, town_map.building_colliders)
         player.rect.clamp_ip(
             pygame.Rect(0, 0, town_map.map_size[0], town_map.map_size[1])
         )
