@@ -1,4 +1,5 @@
 import sys
+from pathlib import Path
 
 import pygame
 
@@ -174,6 +175,15 @@ def _get_display_size() -> tuple[int, int]:
 
 def main() -> None:
     pygame.init()
+    pygame.mixer.init()
+
+    # Load and play starting town music
+    music_path = Path(__file__).parent / "music" / "starting_town_theme.wav"
+    if music_path.exists():
+        pygame.mixer.music.load(str(music_path))
+        pygame.mixer.music.set_volume(0.5)
+        pygame.mixer.music.play(-1)  # -1 means loop indefinitely
+
     display_size = _get_display_size()
     screen = pygame.display.set_mode(display_size, pygame.FULLSCREEN | pygame.SCALED)
     pygame.display.set_caption("Those Who Fight")
@@ -251,6 +261,7 @@ def main() -> None:
         )
         pygame.display.flip()
 
+    pygame.mixer.music.stop()
     pygame.quit()
     sys.exit()
 
