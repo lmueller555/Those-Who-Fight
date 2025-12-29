@@ -564,8 +564,8 @@ class InteriorMap:
         self.scale_factor = scale_factor
         self.building_name = building_name
         self.tile_size = int(TILE_SIZE * BASE_SCALE * scale_factor)
-        self.columns = 12
-        self.rows = 9
+        self.columns = 24
+        self.rows = 18
         self.map_size = (
             self.columns * self.tile_size,
             self.rows * self.tile_size,
