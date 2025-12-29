@@ -480,7 +480,7 @@ class TownMap:
                 if has_entrance:
                     exterior_spawn = pygame.Vector2(
                         doorway_rect.centerx,
-                        doorway_rect.bottom,
+                        doorway_rect.bottom + self.tile_size,
                     )
                     self.building_entrances.append(
                         BuildingEntrance(
