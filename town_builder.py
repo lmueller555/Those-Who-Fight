@@ -713,10 +713,27 @@ class InteriorMap:
         grid_y: int,
         collidable: bool = True,
     ) -> None:
-        top_left = (grid_x * self.tile_size, grid_y * self.tile_size)
+        """Place furniture with bottomleft anchoring.
+
+        grid_y represents the bottom row of the sprite. The sprite extends
+        upward from this position. This ensures multi-tile sprites are fully
+        visible and properly positioned relative to other furniture.
+        """
+        sprite_height_tiles = sprite.get_height() // self.tile_size
+        sprite_width_tiles = sprite.get_width() // self.tile_size
+        # Calculate topleft from bottomleft anchor
+        top_left_x = grid_x * self.tile_size
+        top_left_y = (grid_y - sprite_height_tiles + 1) * self.tile_size
+        top_left = (top_left_x, top_left_y)
         self.surface.blit(sprite, top_left)
         if collidable:
-            rect = sprite.get_rect(topleft=top_left)
+            # Collision box matches sprite size exactly
+            rect = pygame.Rect(
+                top_left_x,
+                top_left_y,
+                sprite_width_tiles * self.tile_size,
+                sprite_height_tiles * self.tile_size,
+            )
             self.furniture_colliders.append(rect)
 
     def _build_map(self) -> None:
@@ -766,93 +783,158 @@ class InteriorMap:
             self._layout_house_five()
 
     def _layout_inn(self) -> None:
-        self._place_furniture(self.furniture["table_large"], 2, 2)
+        # Table large (3x2) - bottomleft at y=3 means sprite at rows 2-3
+        self._place_furniture(self.furniture["table_large"], 2, 3)
         for x in range(2, 5):
+            # Stools (1x1) - y stays same
             self._place_furniture(self.furniture["stool"], x, 4)
-        self._place_furniture(self.furniture["shelf_large"], 18, 2)
-        self._place_furniture(self.furniture["barrel_stack"], 18, 5)
+        # Shelf large (2x2) - bottomleft at y=3 means sprite at rows 2-3
+        self._place_furniture(self.furniture["shelf_large"], 18, 3)
+        # Barrel stack (2x2) - bottomleft at y=6 means sprite at rows 5-6
+        self._place_furniture(self.furniture["barrel_stack"], 18, 6)
+        # Chest (1x1) - y stays same
         self._place_furniture(self.furniture["chest"], 20, 5)
 
-        self._place_furniture(self.furniture["table_small"], 10, 7)
+        # Table small (2x2) - bottomleft at y=8 means sprite at rows 7-8
+        self._place_furniture(self.furniture["table_small"], 10, 8)
         for x in range(10, 12):
+            # North chairs at y=6 means sprite at rows 5-6, adjacent to table top at row 7
             self._place_furniture(self.furniture["chair"], x, 6)
-            self._place_furniture(self.furniture["chair"], x, 8)
-        self._place_furniture(self.furniture["table_small"], 13, 11)
-        for x in range(13, 15):
+            # South chairs at y=10 means sprite at rows 9-10, adjacent to table bottom at row 8
             self._place_furniture(self.furniture["chair"], x, 10)
-            self._place_furniture(self.furniture["chair"], x, 12)
+        # Table small (2x2) - bottomleft at y=12 means sprite at rows 11-12
+        self._place_furniture(self.furniture["table_small"], 13, 12)
+        for x in range(13, 15):
+            # North chairs at y=10 means sprite at rows 9-10, adjacent to table top at row 11
+            self._place_furniture(self.furniture["chair"], x, 10)
+            # South chairs at y=14 means sprite at rows 13-14, adjacent to table bottom at row 12
+            self._place_furniture(self.furniture["chair"], x, 14)
 
-        self._place_furniture(self.furniture["lamp"], 2, 13, collidable=False)
-        self._place_furniture(self.furniture["lamp"], 21, 13, collidable=False)
+        # Lamp (1x2) - bottomleft at y=14 means sprite at rows 13-14
+        self._place_furniture(self.furniture["lamp"], 2, 14, collidable=False)
+        self._place_furniture(self.furniture["lamp"], 21, 14, collidable=False)
+        # Planter box (2x1) - y stays same
         self._place_furniture(self.furniture["planter_box"], 17, 14)
-        self._place_furniture(self.furniture["potted_tree"], 4, 11)
+        # Potted tree (2x2) - bottomleft at y=12 means sprite at rows 11-12
+        self._place_furniture(self.furniture["potted_tree"], 4, 12)
 
     def _layout_blacksmith(self) -> None:
-        self._place_furniture(self.furniture["furnace"], 3, 2)
+        # Furnace (1x2) - bottomleft at y=3 means sprite at rows 2-3
+        self._place_furniture(self.furniture["furnace"], 3, 3)
+        # Anvil (1x1) - y stays same
         self._place_furniture(self.furniture["anvil"], 5, 4)
-        self._place_furniture(self.furniture["table_large"], 9, 4)
-        self._place_furniture(self.furniture["table_small"], 13, 8)
-        self._place_furniture(self.furniture["stool"], 13, 9)
-        self._place_furniture(self.furniture["shelf_large"], 18, 2)
-        self._place_furniture(self.furniture["barrel_stack"], 18, 6)
+        # Table large (3x2) - bottomleft at y=5 means sprite at rows 4-5
+        self._place_furniture(self.furniture["table_large"], 9, 5)
+        # Table small (2x2) - bottomleft at y=9 means sprite at rows 8-9
+        self._place_furniture(self.furniture["table_small"], 13, 9)
+        # Stool (1x1) - y stays same
+        self._place_furniture(self.furniture["stool"], 13, 10)
+        # Shelf large (2x2) - bottomleft at y=3 means sprite at rows 2-3
+        self._place_furniture(self.furniture["shelf_large"], 18, 3)
+        # Barrel stack (2x2) - bottomleft at y=7 means sprite at rows 6-7
+        self._place_furniture(self.furniture["barrel_stack"], 18, 7)
+        # Chest (1x1) - y stays same
         self._place_furniture(self.furniture["chest"], 20, 7)
-        self._place_furniture(self.furniture["lamp"], 2, 13, collidable=False)
+        # Lamp (1x2) - bottomleft at y=14 means sprite at rows 13-14
+        self._place_furniture(self.furniture["lamp"], 2, 14, collidable=False)
 
     def _layout_house_one(self) -> None:
-        self._place_furniture(self.furniture["bed_green"], 2, 2)
-        self._place_furniture(self.furniture["dresser"], 2, 5)
-        self._place_furniture(self.furniture["table_small"], 11, 6)
+        # Bed green (2x2) - bottomleft at y=3 means sprite at rows 2-3
+        self._place_furniture(self.furniture["bed_green"], 2, 3)
+        # Dresser (2x2) - bottomleft at y=6 means sprite at rows 5-6
+        self._place_furniture(self.furniture["dresser"], 2, 6)
+        # Table small (2x2) - bottomleft at y=7 means sprite at rows 6-7
+        self._place_furniture(self.furniture["table_small"], 11, 7)
+        # North chair at y=5 means sprite at rows 4-5, adjacent to table top at row 6
         self._place_furniture(self.furniture["chair"], 11, 5)
-        self._place_furniture(self.furniture["chair"], 12, 7)
-        self._place_furniture(self.furniture["shelf_small"], 18, 2)
+        # South chair at y=9 means sprite at rows 8-9, adjacent to table bottom at row 7
+        self._place_furniture(self.furniture["chair"], 12, 9)
+        # Shelf small (1x2) - bottomleft at y=3 means sprite at rows 2-3
+        self._place_furniture(self.furniture["shelf_small"], 18, 3)
+        # Chest (1x1) - y stays same
         self._place_furniture(self.furniture["chest"], 17, 6)
+        # Planter box (2x1) - y stays same
         self._place_furniture(self.furniture["planter_box"], 16, 12)
-        self._place_furniture(self.furniture["lamp"], 5, 2, collidable=False)
+        # Lamp (1x2) - bottomleft at y=3 means sprite at rows 2-3
+        self._place_furniture(self.furniture["lamp"], 5, 3, collidable=False)
 
     def _layout_house_two(self) -> None:
-        self._place_furniture(self.furniture["bed_blue"], 2, 3)
-        self._place_furniture(self.furniture["shelf_small"], 16, 2)
-        self._place_furniture(self.furniture["shelf_large"], 18, 2)
-        self._place_furniture(self.furniture["table_small"], 11, 6)
-        self._place_furniture(self.furniture["chair"], 10, 6)
-        self._place_furniture(self.furniture["chair"], 12, 7)
-        self._place_furniture(self.furniture["dresser"], 2, 7)
-        self._place_furniture(self.furniture["lamp"], 6, 3, collidable=False)
+        # Bed blue (2x2) - bottomleft at y=4 means sprite at rows 3-4
+        self._place_furniture(self.furniture["bed_blue"], 2, 4)
+        # Shelf small (1x2) - bottomleft at y=3 means sprite at rows 2-3
+        self._place_furniture(self.furniture["shelf_small"], 16, 3)
+        # Shelf large (2x2) - bottomleft at y=3 means sprite at rows 2-3
+        self._place_furniture(self.furniture["shelf_large"], 18, 3)
+        # Table small (2x2) - bottomleft at y=7 means sprite at rows 6-7
+        self._place_furniture(self.furniture["table_small"], 11, 7)
+        # West chair at y=6 means sprite at rows 5-6, adjacent to table left
+        self._place_furniture(self.furniture["chair"], 9, 6)
+        # South chair at y=9 means sprite at rows 8-9, adjacent to table bottom at row 7
+        self._place_furniture(self.furniture["chair"], 12, 9)
+        # Dresser (2x2) - bottomleft at y=8 means sprite at rows 7-8
+        self._place_furniture(self.furniture["dresser"], 2, 8)
+        # Lamp (1x2) - bottomleft at y=4 means sprite at rows 3-4
+        self._place_furniture(self.furniture["lamp"], 6, 4, collidable=False)
+        # Planter box (2x1) - y stays same
         self._place_furniture(self.furniture["planter_box"], 15, 12)
 
     def _layout_house_three(self) -> None:
-        self._place_furniture(self.furniture["bed_red"], 2, 2)
-        self._place_furniture(self.furniture["table_large"], 9, 6)
+        # Bed red (2x2) - bottomleft at y=3 means sprite at rows 2-3
+        self._place_furniture(self.furniture["bed_red"], 2, 3)
+        # Table large (3x2) - bottomleft at y=7 means sprite at rows 6-7
+        self._place_furniture(self.furniture["table_large"], 9, 7)
+        # North chairs at y=5 means sprite at rows 4-5, adjacent to table top at row 6
         self._place_furniture(self.furniture["chair"], 9, 5)
-        self._place_furniture(self.furniture["chair"], 10, 9)
         self._place_furniture(self.furniture["chair"], 11, 5)
-        self._place_furniture(self.furniture["barrel_stack"], 17, 3)
-        self._place_furniture(self.furniture["barrel_stack"], 19, 3)
+        # South chair at y=9 means sprite at rows 8-9, adjacent to table bottom at row 7
+        self._place_furniture(self.furniture["chair"], 10, 9)
+        # Barrel stack (2x2) - bottomleft at y=4 means sprite at rows 3-4
+        self._place_furniture(self.furniture["barrel_stack"], 17, 4)
+        self._place_furniture(self.furniture["barrel_stack"], 19, 4)
+        # Chest (1x1) - y stays same
         self._place_furniture(self.furniture["chest"], 18, 7)
-        self._place_furniture(self.furniture["shelf_small"], 20, 2)
-        self._place_furniture(self.furniture["lamp"], 5, 2, collidable=False)
+        # Shelf small (1x2) - bottomleft at y=3 means sprite at rows 2-3
+        self._place_furniture(self.furniture["shelf_small"], 20, 3)
+        # Lamp (1x2) - bottomleft at y=3 means sprite at rows 2-3
+        self._place_furniture(self.furniture["lamp"], 5, 3, collidable=False)
 
     def _layout_house_four(self) -> None:
-        self._place_furniture(self.furniture["bed_yellow"], 3, 2)
-        self._place_furniture(self.furniture["table_small"], 11, 5)
-        self._place_furniture(self.furniture["stool"], 10, 6)
-        self._place_furniture(self.furniture["stool"], 13, 6)
-        self._place_furniture(self.furniture["dresser"], 3, 6)
-        self._place_furniture(self.furniture["barrel_stack"], 17, 5)
-        self._place_furniture(self.furniture["shelf_large"], 18, 2)
+        # Bed yellow (2x2) - bottomleft at y=3 means sprite at rows 2-3
+        self._place_furniture(self.furniture["bed_yellow"], 3, 3)
+        # Table small (2x2) - bottomleft at y=6 means sprite at rows 5-6
+        self._place_furniture(self.furniture["table_small"], 11, 6)
+        # Stools (1x1) - y stays same, positioned around table
+        self._place_furniture(self.furniture["stool"], 10, 7)
+        self._place_furniture(self.furniture["stool"], 13, 7)
+        # Dresser (2x2) - bottomleft at y=7 means sprite at rows 6-7
+        self._place_furniture(self.furniture["dresser"], 3, 7)
+        # Barrel stack (2x2) - bottomleft at y=6 means sprite at rows 5-6
+        self._place_furniture(self.furniture["barrel_stack"], 17, 6)
+        # Shelf large (2x2) - bottomleft at y=3 means sprite at rows 2-3
+        self._place_furniture(self.furniture["shelf_large"], 18, 3)
+        # Planter box (2x1) - y stays same
         self._place_furniture(self.furniture["planter_box"], 16, 12)
-        self._place_furniture(self.furniture["lamp"], 6, 2, collidable=False)
+        # Lamp (1x2) - bottomleft at y=3 means sprite at rows 2-3
+        self._place_furniture(self.furniture["lamp"], 6, 3, collidable=False)
 
     def _layout_house_five(self) -> None:
-        self._place_furniture(self.furniture["bed_pink"], 2, 3)
-        self._place_furniture(self.furniture["table_large"], 9, 5)
+        # Bed pink (2x2) - bottomleft at y=4 means sprite at rows 3-4
+        self._place_furniture(self.furniture["bed_pink"], 2, 4)
+        # Table large (3x2) - bottomleft at y=6 means sprite at rows 5-6
+        self._place_furniture(self.furniture["table_large"], 9, 6)
+        # Stools (1x1) - positioned around table
         self._place_furniture(self.furniture["stool"], 9, 7)
         self._place_furniture(self.furniture["stool"], 11, 7)
-        self._place_furniture(self.furniture["dresser"], 2, 7)
-        self._place_furniture(self.furniture["shelf_small"], 18, 2)
+        # Dresser (2x2) - bottomleft at y=8 means sprite at rows 7-8
+        self._place_furniture(self.furniture["dresser"], 2, 8)
+        # Shelf small (1x2) - bottomleft at y=3 means sprite at rows 2-3
+        self._place_furniture(self.furniture["shelf_small"], 18, 3)
+        # Planter box (2x1) - y stays same
         self._place_furniture(self.furniture["planter_box"], 15, 12)
-        self._place_furniture(self.furniture["potted_tree"], 4, 10)
-        self._place_furniture(self.furniture["lamp"], 6, 3, collidable=False)
+        # Potted tree (2x2) - bottomleft at y=11 means sprite at rows 10-11
+        self._place_furniture(self.furniture["potted_tree"], 4, 11)
+        # Lamp (1x2) - bottomleft at y=4 means sprite at rows 3-4
+        self._place_furniture(self.furniture["lamp"], 6, 4, collidable=False)
 
     def _build_colliders(self) -> None:
         door_width_tiles = 2
