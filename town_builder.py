@@ -568,11 +568,10 @@ class InteriorMap:
     def _build_colliders(self) -> None:
         door_width_tiles = 2
         door_start = (self.columns - door_width_tiles) // 2
-        door_padding = self.tile_size // 4
         raw_left = door_start * self.tile_size
-        raw_right = raw_left + door_width_tiles * self.tile_size
-        door_left = max(0, raw_left - door_padding)
-        door_right = min(self.map_size[0], raw_right + door_padding)
+        door_right = raw_left + door_width_tiles * self.tile_size
+        door_left = max(0, raw_left)
+        door_right = min(self.map_size[0], door_right)
         door_width = door_right - door_left
         bottom_y = (self.rows - 1) * self.tile_size
         self.exit_rect = pygame.Rect(door_left, bottom_y, door_width, self.tile_size)
