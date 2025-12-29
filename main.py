@@ -231,7 +231,7 @@ def main() -> None:
                 )
                 current_map = town_map
                 if entrance is not None:
-                    player.rect.center = entrance.exterior_spawn
+                    player.rect.midbottom = entrance.exterior_spawn
                 camera = Camera(screen_size, current_map.map_size)
                 active_building = None
 
