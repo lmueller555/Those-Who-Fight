@@ -245,13 +245,19 @@ class TownMap:
             ),
         }
 
+        fountain_sheet = SpriteSheet(
+            TOWN_ASSETS_DIR / "Outdoor decoration" / "Fountain.png",
+            32,
+            80,
+        )
+        benches_sheet = SpriteSheet(
+            TOWN_ASSETS_DIR / "Outdoor decoration" / "Benches.png",
+            32,
+            32,
+        )
         self.props = {
-            "fountain": self._scale(
-                self._load_image("Outdoor decoration/Fountain.png")
-            ),
-            "benches": self._scale(
-                self._load_image("Outdoor decoration/Benches.png")
-            ),
+            "fountain": self._scale(fountain_sheet.get_frame(0, 0)),
+            "benches": self._scale(benches_sheet.get_frame(1, 0)),
             "lantern": self._scale(
                 self._load_image("Outdoor decoration/Lanter_Posts.png")
             ),
