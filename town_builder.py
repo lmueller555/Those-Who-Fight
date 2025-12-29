@@ -577,11 +577,16 @@ class InteriorMap:
         self.exit_rect = pygame.Rect(door_left, bottom_y, door_width, self.tile_size)
         self.entry_spawn = pygame.Vector2(self.exit_rect.centerx, self.exit_rect.top)
 
-        self.colliders.append(pygame.Rect(0, 0, self.map_size[0], self.tile_size))
-        self.colliders.append(pygame.Rect(0, 0, self.tile_size, self.map_size[1]))
+        wall_offset = self.tile_size
+        self.colliders.append(
+            pygame.Rect(0, -wall_offset, self.map_size[0], self.tile_size)
+        )
+        self.colliders.append(
+            pygame.Rect(-wall_offset, 0, self.tile_size, self.map_size[1])
+        )
         self.colliders.append(
             pygame.Rect(
-                self.map_size[0] - self.tile_size,
+                self.map_size[0],
                 0,
                 self.tile_size,
                 self.map_size[1],
@@ -589,14 +594,14 @@ class InteriorMap:
         )
         if door_left > 0:
             self.colliders.append(
-                pygame.Rect(0, bottom_y, door_left, self.tile_size)
+                pygame.Rect(0, bottom_y + wall_offset, door_left, self.tile_size)
             )
         right_start = door_right
         if right_start < self.map_size[0]:
             self.colliders.append(
                 pygame.Rect(
                     right_start,
-                    bottom_y,
+                    bottom_y + wall_offset,
                     self.map_size[0] - right_start,
                     self.tile_size,
                 )
