@@ -1,4 +1,5 @@
 import sys
+from pathlib import Path
 
 import pygame
 
@@ -174,6 +175,7 @@ def _get_display_size() -> tuple[int, int]:
 
 def main() -> None:
     pygame.init()
+    pygame.mixer.init()
     display_size = _get_display_size()
     screen = pygame.display.set_mode(display_size, pygame.FULLSCREEN | pygame.SCALED)
     pygame.display.set_caption("Those Who Fight")
@@ -195,6 +197,11 @@ def main() -> None:
     player = Player(sprite_sheet, start_position, scale_factor)
     camera = Camera(screen_size, current_map.map_size)
     active_building: str | None = None
+
+    music_path = Path(__file__).parent / "music" / "starting_town_theme.wav"
+    if music_path.exists():
+        pygame.mixer.music.load(music_path)
+        pygame.mixer.music.play(-1)
 
     running = True
     while running:
@@ -251,6 +258,7 @@ def main() -> None:
         )
         pygame.display.flip()
 
+    pygame.mixer.music.stop()
     pygame.quit()
     sys.exit()
 
