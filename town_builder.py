@@ -274,6 +274,9 @@ class TownMap:
             "bartender": self._scale(bartender_sheet.get_frame(0, 0)),
             "miner": self._scale(miner_sheet.get_frame(0, 0)),
             "chef": self._scale(chef_sheet.get_frame(0, 0)),
+            "blacksmith": self._scale(
+                self._load_image("NPCs (Premade)/Lumberjack_Jack.png")
+            ),
         }
 
         trees = {
@@ -336,6 +339,7 @@ class TownMap:
             "T": self.path_tiles["center"],
             "M": self.path_tiles["center"],
             "C": self.path_tiles["center"],
+            "s": self.path_tiles["center"],
         }
         for y, row in enumerate(self.ascii_map):
             for x, tile in enumerate(row):
@@ -364,6 +368,7 @@ class TownMap:
             "T": self.npc_sprites["bartender"],
             "M": self.npc_sprites["miner"],
             "C": self.npc_sprites["chef"],
+            "s": self.npc_sprites["blacksmith"],
             "O": self.trees["oak"],
             "r": self.trees["birch"],
             "Y": self.trees["spruce"],
