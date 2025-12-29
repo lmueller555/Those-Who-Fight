@@ -56,7 +56,7 @@ class TownMap:
     def _scale_to_npc(self, surface: pygame.Surface) -> pygame.Surface:
         return pygame.transform.scale(
             surface,
-            (self.tile_size * 2, self.tile_size * 2),
+            (self.tile_size * 4, self.tile_size * 4),
         )
 
     def _load_ascii_map(self) -> list[str]:
@@ -412,13 +412,13 @@ class TownMap:
         if building_rect is None:
             return
         # Blacksmith house sprite is 10x8 tiles; the anvil sits on tile (8, 6).
-        # Place the NPC at the anvil's mid-bottom.
-        anvil_tile = pygame.Vector2(8.5, 7.0)
-        anvil_position = pygame.Vector2(
-            building_rect.left + anvil_tile.x * self.tile_size,
-            building_rect.top + anvil_tile.y * self.tile_size,
+        # Place the NPC in front of the anvil, shifted left toward the workbench.
+        npc_tile = pygame.Vector2(7.5, 7.5)
+        npc_position = pygame.Vector2(
+            building_rect.left + npc_tile.x * self.tile_size,
+            building_rect.top + npc_tile.y * self.tile_size,
         )
-        self.npcs.append(AnimatedNPC(self.blacksmith_frames, anvil_position))
+        self.npcs.append(AnimatedNPC(self.blacksmith_frames, npc_position))
 
     def _build_collision_rects(self) -> None:
         building_mapping = {
