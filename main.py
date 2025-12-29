@@ -201,6 +201,7 @@ def main() -> None:
     music_path = Path(__file__).parent / "music" / "starting_town_theme.wav"
     if music_path.exists():
         pygame.mixer.music.load(music_path)
+        pygame.mixer.music.set_volume(0.5)
         pygame.mixer.music.play(-1)
 
     running = True
