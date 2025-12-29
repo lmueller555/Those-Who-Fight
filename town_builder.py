@@ -30,7 +30,6 @@ class TownMap:
         self.npcs: list[AnimatedNPC] = []
         self._load_assets()
         self._build_map()
-        self._place_miner_mike()
         self._spawn_blacksmith()
         self._build_collision_rects()
         self.colliders = self.building_colliders
@@ -385,6 +384,7 @@ class TownMap:
             "g": self.sign_sprite,
             "p": self.flower_pots["red"],
             "T": self.npc_sprites["bartender"],
+            "M": self.npc_sprites["miner"],
             "C": self.npc_sprites["chef"],
             "O": self.trees["oak"],
             "r": self.trees["birch"],
@@ -406,14 +406,6 @@ class TownMap:
                 sprite = object_mapping.get(tile)
                 if sprite is not None:
                     self._blit_object(sprite, x, y)
-
-    def _place_miner_mike(self) -> None:
-        miner_tile = pygame.Vector2(10, 29)
-        self._blit_object(
-            self.npc_sprites["miner"],
-            int(miner_tile.x),
-            int(miner_tile.y),
-        )
 
     def _spawn_blacksmith(self) -> None:
         building_rect = self.building_positions.get("blacksmith")
