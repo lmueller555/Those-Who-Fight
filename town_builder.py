@@ -678,7 +678,7 @@ class InteriorMap:
             "furnace": self._build_sprite(furnace_sheet, 0, 0, 1, 2),
             "anvil": self._build_sprite(anvil_sheet, 0, 0, 1, 1),
             "chest": self._build_sprite(chest_sheet, 0, 0, 1, 1),
-            "potted_tree": self._build_sprite(decor_sheet, 1, 6, 2, 2),
+            "potted_tree": self._build_sprite(decor_sheet, 0, 4, 2, 2),
         }
 
     def _blit_tile(self, tile: pygame.Surface, grid_x: int, grid_y: int) -> None:
