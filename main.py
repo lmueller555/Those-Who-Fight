@@ -12,7 +12,7 @@ from sprites import (
     PLAYER_TILE_SIZE,
     PLAYER_SHEET,
 )
-from town_builder import InteriorMap, TownMap
+from town_builder import InnInteriorMap, InteriorMap, TownMap
 
 
 class Player(pygame.sprite.Sprite):
@@ -188,7 +188,7 @@ def main() -> None:
 
     sprite_sheet = SpriteSheet(PLAYER_SHEET, PLAYER_TILE_SIZE, PLAYER_TILE_SIZE)
     town_map = TownMap(scale_factor)
-    interior_maps: dict[str, InteriorMap] = {}
+    interior_maps: dict[str, InteriorMap | InnInteriorMap] = {}
     current_map = town_map
     start_position = pygame.Vector2(
         town_map.map_size[0] / 2,
@@ -224,14 +224,30 @@ def main() -> None:
             if entrance is not None:
                 interior_map = interior_maps.get(entrance.building_name)
                 if interior_map is None:
-                    interior_map = InteriorMap(scale_factor, entrance.building_name)
+                    # Use InnInteriorMap for inn, regular InteriorMap for others
+                    if entrance.building_name == "inn":
+                        interior_map = InnInteriorMap(scale_factor)
+                    else:
+                        interior_map = InteriorMap(scale_factor, entrance.building_name)
                     interior_maps[entrance.building_name] = interior_map
                 current_map = interior_map
                 active_building = entrance.building_name
                 player.rect.midbottom = interior_map.entry_spawn
                 camera = Camera(screen_size, current_map.map_size)
         else:
-            if player.rect.colliderect(current_map.exit_rect) and active_building:
+            # Check for floor transitions in InnInteriorMap
+            if isinstance(current_map, InnInteriorMap):
+                new_floor = current_map.check_stair_transition(player.rect)
+                if new_floor is not None:
+                    spawn_pos = current_map.transition_to_floor(new_floor)
+                    player.rect.midbottom = spawn_pos
+
+            # Check for exit (only on ground floor for Inn, or any floor for others)
+            can_exit = True
+            if isinstance(current_map, InnInteriorMap):
+                can_exit = current_map.current_floor == 0
+
+            if can_exit and player.rect.colliderect(current_map.exit_rect) and active_building:
                 entrance = next(
                     (item for item in town_map.building_entrances
                      if item.building_name == active_building),
@@ -246,7 +262,7 @@ def main() -> None:
         player.rect.clamp_ip(
             pygame.Rect(0, 0, current_map.map_size[0], current_map.map_size[1])
         )
-        if isinstance(current_map, InteriorMap):
+        if isinstance(current_map, (InteriorMap, InnInteriorMap)):
             camera.center_on_map()
         else:
             camera.update(player.rect)

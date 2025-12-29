@@ -899,3 +899,268 @@ class InteriorMap:
 
     def draw(self, screen: pygame.Surface, offset: pygame.Vector2) -> None:
         screen.blit(self.surface, (-offset.x, -offset.y))
+
+
+class InnInteriorMap:
+    """Two-floor interior map for the Inn building."""
+
+    def __init__(self, scale_factor: float):
+        self.scale_factor = scale_factor
+        self.tile_size = int(TILE_SIZE * BASE_SCALE * scale_factor)
+        self.columns = 24
+        self.rows = 18
+        self.map_size = (
+            self.columns * self.tile_size,
+            self.rows * self.tile_size,
+        )
+        self.current_floor = 0  # 0 = ground floor, 1 = second floor
+        self.floors: list[pygame.Surface] = []
+        self.floor_colliders: list[list[pygame.Rect]] = [[], []]
+        self.furniture_colliders: list[list[pygame.Rect]] = [[], []]
+
+        # Transition rects
+        self.exit_rect = pygame.Rect(0, 0, 0, 0)  # Exit to town (ground floor only)
+        self.stair_up_rect = pygame.Rect(0, 0, 0, 0)  # Go to second floor
+        self.stair_down_rect = pygame.Rect(0, 0, 0, 0)  # Go to ground floor
+        self.entry_spawn = pygame.Vector2(0, 0)
+        self.stair_up_spawn = pygame.Vector2(0, 0)  # Spawn point on second floor
+        self.stair_down_spawn = pygame.Vector2(0, 0)  # Spawn point on ground floor
+
+        self._load_assets()
+        self._build_floors()
+        self._build_colliders()
+
+    def _scale_to_tile(self, surface: pygame.Surface) -> pygame.Surface:
+        return pygame.transform.scale(surface, (self.tile_size, self.tile_size))
+
+    def _load_assets(self) -> None:
+        floor_sheet = SpriteSheet(
+            TOWN_ASSETS_DIR / "Buildings" / "Houses_Interiors" / "Wood_Floor_Tiles.png",
+            TILE_SIZE,
+            TILE_SIZE,
+        )
+        wall_sheet = SpriteSheet(
+            TOWN_ASSETS_DIR / "Buildings" / "Houses_Interiors" / "Interior_Walls.png",
+            TILE_SIZE,
+            TILE_SIZE,
+        )
+        stair_sheet = SpriteSheet(
+            TOWN_ASSETS_DIR / "Buildings" / "Houses_Interiors" / "Wood_Stairs.png",
+            TILE_SIZE,
+            TILE_SIZE,
+        )
+
+        self.floor_tile = self._scale_to_tile(floor_sheet.get_frame(0, 0))
+        self.wall_tile = self._scale_to_tile(wall_sheet.get_frame(4, 3))
+        # Stair tiles - the sprite appears to be 4 tiles wide x 1 tile tall
+        self.stair_tiles = [
+            self._scale_to_tile(stair_sheet.get_frame(col, 0)) for col in range(4)
+        ]
+
+    def _blit_tile(
+        self, surface: pygame.Surface, tile: pygame.Surface, grid_x: int, grid_y: int
+    ) -> None:
+        surface.blit(tile, (grid_x * self.tile_size, grid_y * self.tile_size))
+
+    def _build_floors(self) -> None:
+        # Build ground floor (floor 0)
+        ground_floor = pygame.Surface(self.map_size, pygame.SRCALPHA)
+        self._build_ground_floor(ground_floor)
+        self.floors.append(ground_floor)
+
+        # Build second floor (floor 1)
+        second_floor = pygame.Surface(self.map_size, pygame.SRCALPHA)
+        self._build_second_floor(second_floor)
+        self.floors.append(second_floor)
+
+    def _build_ground_floor(self, surface: pygame.Surface) -> None:
+        """Build the ground floor with entrance door and stairs going up."""
+        # Fill with floor tiles
+        for y in range(self.rows):
+            for x in range(self.columns):
+                self._blit_tile(surface, self.floor_tile, x, y)
+
+        door_width_tiles = 2
+        door_start = (self.columns - door_width_tiles) // 2
+        bottom_y = self.rows - 1
+
+        # Top wall
+        for x in range(self.columns):
+            self._blit_tile(surface, self.wall_tile, x, 0)
+
+        # Bottom wall with door opening
+        for x in range(self.columns):
+            if door_start <= x < door_start + door_width_tiles:
+                self._blit_tile(surface, self.floor_tile, x, bottom_y)
+            else:
+                self._blit_tile(surface, self.wall_tile, x, bottom_y)
+
+        # Side walls
+        for y in range(1, self.rows - 1):
+            self._blit_tile(surface, self.wall_tile, 0, y)
+            self._blit_tile(surface, self.wall_tile, self.columns - 1, y)
+
+        # Staircase going up on the right side (4 tiles wide, positioned against wall)
+        stair_x = self.columns - 6  # Position stairs 1 tile from right wall
+        stair_y = 2  # Near top wall
+        stair_width = 4
+        stair_height = 3
+
+        # Draw stair tiles (repeated vertically for depth)
+        for row in range(stair_height):
+            for col in range(stair_width):
+                self._blit_tile(surface, self.stair_tiles[col], stair_x + col, stair_y + row)
+
+    def _build_second_floor(self, surface: pygame.Surface) -> None:
+        """Build the second floor with stairs going down (no exterior door)."""
+        # Fill with floor tiles
+        for y in range(self.rows):
+            for x in range(self.columns):
+                self._blit_tile(surface, self.floor_tile, x, y)
+
+        # All four walls (no door opening on second floor)
+        # Top wall
+        for x in range(self.columns):
+            self._blit_tile(surface, self.wall_tile, x, 0)
+
+        # Bottom wall (complete, no door)
+        for x in range(self.columns):
+            self._blit_tile(surface, self.wall_tile, x, self.rows - 1)
+
+        # Side walls
+        for y in range(1, self.rows - 1):
+            self._blit_tile(surface, self.wall_tile, 0, y)
+            self._blit_tile(surface, self.wall_tile, self.columns - 1, y)
+
+        # Staircase going down on the right side (same position as ground floor)
+        stair_x = self.columns - 6
+        stair_y = 2
+        stair_width = 4
+        stair_height = 3
+
+        # Draw stair tiles
+        for row in range(stair_height):
+            for col in range(stair_width):
+                self._blit_tile(surface, self.stair_tiles[col], stair_x + col, stair_y + row)
+
+    def _build_colliders(self) -> None:
+        """Build collision rects for both floors."""
+        door_width_tiles = 2
+        door_start = (self.columns - door_width_tiles) // 2
+        raw_left = door_start * self.tile_size
+        door_right = raw_left + door_width_tiles * self.tile_size
+        door_left = max(0, raw_left)
+        door_right = min(self.map_size[0], door_right)
+        door_width = door_right - door_left
+        bottom_y = (self.rows - 1) * self.tile_size
+
+        # Exit rect (ground floor only)
+        self.exit_rect = pygame.Rect(door_left, bottom_y, door_width, self.tile_size)
+        self.entry_spawn = pygame.Vector2(self.exit_rect.centerx, self.exit_rect.top)
+
+        # Staircase transition zones
+        stair_x = self.columns - 6
+        stair_y = 2
+        stair_width = 4
+        stair_height = 3
+
+        stair_rect_x = stair_x * self.tile_size
+        stair_rect_y = stair_y * self.tile_size
+        stair_rect_w = stair_width * self.tile_size
+        stair_rect_h = stair_height * self.tile_size
+
+        # Stair up trigger (on ground floor)
+        self.stair_up_rect = pygame.Rect(stair_rect_x, stair_rect_y, stair_rect_w, stair_rect_h)
+        # Spawn point on second floor (in front of stairs)
+        self.stair_up_spawn = pygame.Vector2(
+            stair_rect_x + stair_rect_w // 2,
+            stair_rect_y + stair_rect_h + self.tile_size,
+        )
+
+        # Stair down trigger (on second floor, same position)
+        self.stair_down_rect = pygame.Rect(stair_rect_x, stair_rect_y, stair_rect_w, stair_rect_h)
+        # Spawn point on ground floor (in front of stairs)
+        self.stair_down_spawn = pygame.Vector2(
+            stair_rect_x + stair_rect_w // 2,
+            stair_rect_y + stair_rect_h + self.tile_size,
+        )
+
+        # Build wall colliders for both floors
+        wall_offset = self.tile_size
+
+        # Ground floor colliders (floor 0)
+        ground_colliders = []
+        # Top wall
+        ground_colliders.append(
+            pygame.Rect(0, -wall_offset, self.map_size[0], self.tile_size)
+        )
+        # Left wall
+        ground_colliders.append(
+            pygame.Rect(-wall_offset, 0, self.tile_size, self.map_size[1])
+        )
+        # Right wall
+        ground_colliders.append(
+            pygame.Rect(self.map_size[0], 0, self.tile_size, self.map_size[1])
+        )
+        # Bottom wall segments (around door)
+        if door_left > 0:
+            ground_colliders.append(
+                pygame.Rect(0, bottom_y + wall_offset, door_left, self.tile_size)
+            )
+        right_start = door_right
+        if right_start < self.map_size[0]:
+            ground_colliders.append(
+                pygame.Rect(
+                    right_start,
+                    bottom_y + wall_offset,
+                    self.map_size[0] - right_start,
+                    self.tile_size,
+                )
+            )
+        self.floor_colliders[0] = ground_colliders
+
+        # Second floor colliders (floor 1)
+        second_colliders = []
+        # Top wall
+        second_colliders.append(
+            pygame.Rect(0, -wall_offset, self.map_size[0], self.tile_size)
+        )
+        # Left wall
+        second_colliders.append(
+            pygame.Rect(-wall_offset, 0, self.tile_size, self.map_size[1])
+        )
+        # Right wall
+        second_colliders.append(
+            pygame.Rect(self.map_size[0], 0, self.tile_size, self.map_size[1])
+        )
+        # Bottom wall (complete, no door)
+        second_colliders.append(
+            pygame.Rect(0, bottom_y + wall_offset, self.map_size[0], self.tile_size)
+        )
+        self.floor_colliders[1] = second_colliders
+
+    @property
+    def colliders(self) -> list[pygame.Rect]:
+        """Return colliders for current floor."""
+        return self.floor_colliders[self.current_floor] + self.furniture_colliders[self.current_floor]
+
+    def check_stair_transition(self, player_rect: pygame.Rect) -> int | None:
+        """Check if player should transition floors. Returns new floor number or None."""
+        if self.current_floor == 0:
+            if player_rect.colliderect(self.stair_up_rect):
+                return 1
+        elif self.current_floor == 1:
+            if player_rect.colliderect(self.stair_down_rect):
+                return 0
+        return None
+
+    def transition_to_floor(self, new_floor: int) -> pygame.Vector2:
+        """Transition to new floor and return spawn position."""
+        self.current_floor = new_floor
+        if new_floor == 1:
+            return self.stair_up_spawn
+        else:
+            return self.stair_down_spawn
+
+    def draw(self, screen: pygame.Surface, offset: pygame.Vector2) -> None:
+        screen.blit(self.floors[self.current_floor], (-offset.x, -offset.y))
