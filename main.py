@@ -209,6 +209,8 @@ def main() -> None:
         keys = pygame.key.get_pressed()
         player.handle_input(keys)
         player.update(delta_time, current_map.colliders)
+        if isinstance(current_map, TownMap):
+            current_map.update(delta_time)
         if current_map is town_map:
             entrance = town_map.get_entrance(player.rect)
             if entrance is not None:

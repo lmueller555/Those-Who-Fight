@@ -26,8 +26,11 @@ class TownMap:
         self.surface = pygame.Surface(self.map_size, pygame.SRCALPHA)
         self.building_colliders: list[pygame.Rect] = []
         self.building_entrances: list[BuildingEntrance] = []
+        self.building_positions: dict[str, pygame.Rect] = {}
+        self.npcs: list[AnimatedNPC] = []
         self._load_assets()
         self._build_map()
+        self._spawn_blacksmith()
         self._build_collision_rects()
         self.colliders = self.building_colliders
 
@@ -49,6 +52,12 @@ class TownMap:
     def _scale_to_tile(self, surface: pygame.Surface) -> pygame.Surface:
         """Scale a surface to exactly fit tile_size x tile_size"""
         return pygame.transform.scale(surface, (self.tile_size, self.tile_size))
+
+    def _scale_to_npc(self, surface: pygame.Surface) -> pygame.Surface:
+        return pygame.transform.scale(
+            surface,
+            (self.tile_size * 2, self.tile_size * 2),
+        )
 
     def _load_ascii_map(self) -> list[str]:
         map_path = BASE_DIR / "starting_town_ascii_map.md"
@@ -119,6 +128,11 @@ class TownMap:
             TOWN_ASSETS_DIR / "NPCs (Premade)" / "Chef_Chloe.png",
             TILE_SIZE,
             TILE_SIZE,
+        )
+        blacksmith_sheet = SpriteSheet(
+            TOWN_ASSETS_DIR / "NPCs (Premade)" / "Miner_Mike.png",
+            64,
+            64,
         )
 
         self.grass_tile = self._scale_to_tile(grass_tile_image)
@@ -276,6 +290,11 @@ class TownMap:
             "chef": self._scale(chef_sheet.get_frame(0, 0)),
         }
 
+        self.blacksmith_frames = [
+            self._scale_to_npc(blacksmith_sheet.get_frame(column, 0))
+            for column in range(6)
+        ]
+
         trees = {
             "oak": self._scale(self._load_image("Trees/Big_Oak_Tree.png")),
             "birch": self._scale(self._load_image("Trees/Medium_Birch_Tree.png")),
@@ -344,15 +363,18 @@ class TownMap:
                 elif tile in object_ground:
                     self._blit_tile(object_ground[tile], x, y)
 
+        building_mapping = {
+            "I": ("inn", self.buildings["inn"]),
+            "B": ("blacksmith", self.buildings["blacksmith"]),
+            "S": ("stalls", self.buildings["stalls"]),
+            "1": ("house_1", self.buildings["house_1"]),
+            "2": ("house_2", self.buildings["house_2"]),
+            "3": ("house_3", self.buildings["house_3"]),
+            "4": ("house_4", self.buildings["house_4"]),
+            "5": ("house_5", self.buildings["house_5"]),
+        }
+
         object_mapping = {
-            "I": self.buildings["inn"],
-            "B": self.buildings["blacksmith"],
-            "S": self.buildings["stalls"],
-            "1": self.buildings["house_1"],
-            "2": self.buildings["house_2"],
-            "3": self.buildings["house_3"],
-            "4": self.buildings["house_4"],
-            "5": self.buildings["house_5"],
             "F": self.props["fountain"],
             "N": self.props["benches"],
             "W": self.props["well"],
@@ -370,9 +392,33 @@ class TownMap:
         }
         for y, row in enumerate(self.ascii_map):
             for x, tile in enumerate(row):
+                building_entry = building_mapping.get(tile)
+                if building_entry is not None:
+                    building_name, building_sprite = building_entry
+                    self._blit_object(building_sprite, x, y)
+                    rect = building_sprite.get_rect()
+                    rect.midbottom = (
+                        x * self.tile_size + self.tile_size // 2,
+                        y * self.tile_size + self.tile_size,
+                    )
+                    self.building_positions[building_name] = rect
+                    continue
                 sprite = object_mapping.get(tile)
                 if sprite is not None:
                     self._blit_object(sprite, x, y)
+
+    def _spawn_blacksmith(self) -> None:
+        building_rect = self.building_positions.get("blacksmith")
+        if building_rect is None:
+            return
+        # Blacksmith house sprite is 10x8 tiles; the anvil sits on tile (8, 6).
+        # Place the NPC at the anvil's mid-bottom.
+        anvil_tile = pygame.Vector2(8.5, 7.0)
+        anvil_position = pygame.Vector2(
+            building_rect.left + anvil_tile.x * self.tile_size,
+            building_rect.top + anvil_tile.y * self.tile_size,
+        )
+        self.npcs.append(AnimatedNPC(self.blacksmith_frames, anvil_position))
 
     def _build_collision_rects(self) -> None:
         building_mapping = {
@@ -480,8 +526,37 @@ class TownMap:
                 return entrance
         return None
 
+    def update(self, delta_time: float) -> None:
+        for npc in self.npcs:
+            npc.update(delta_time)
+
     def draw(self, screen: pygame.Surface, offset: pygame.Vector2) -> None:
         screen.blit(self.surface, (-offset.x, -offset.y))
+        for npc in self.npcs:
+            npc.draw(screen, offset)
+
+
+class AnimatedNPC:
+    def __init__(self, frames: list[pygame.Surface], position: pygame.Vector2):
+        self.frames = frames
+        self.frame_index = 0
+        self.frame_time = 0.0
+        self.image = self.frames[self.frame_index]
+        self.rect = self.image.get_rect(midbottom=position)
+
+    def update(self, delta_time: float) -> None:
+        self.frame_time += delta_time
+        if self.frame_time >= 0.12:
+            self.frame_time = 0.0
+            self.frame_index = (self.frame_index + 1) % len(self.frames)
+            self.image = self.frames[self.frame_index]
+            self.rect = self.image.get_rect(midbottom=self.rect.midbottom)
+
+    def draw(self, screen: pygame.Surface, offset: pygame.Vector2) -> None:
+        screen.blit(
+            self.image,
+            (self.rect.x - offset.x, self.rect.y - offset.y),
+        )
 
 
 class InteriorMap:
