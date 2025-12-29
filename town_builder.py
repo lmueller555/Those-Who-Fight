@@ -528,12 +528,7 @@ class InteriorMap:
             TILE_SIZE,
         )
 
-        self.floor_tiles = [
-            self._scale_to_tile(floor_sheet.get_frame(0, 0)),
-            self._scale_to_tile(floor_sheet.get_frame(1, 0)),
-            self._scale_to_tile(floor_sheet.get_frame(2, 0)),
-            self._scale_to_tile(floor_sheet.get_frame(3, 0)),
-        ]
+        self.floor_tile = self._scale_to_tile(floor_sheet.get_frame(0, 0))
         self.wall_tile = self._scale_to_tile(wall_sheet.get_frame(4, 3))
         self.corner_tile = self.wall_tile
         self.door_tile = self._scale_to_tile(floor_sheet.get_frame(6, 0))
@@ -546,8 +541,7 @@ class InteriorMap:
     def _build_map(self) -> None:
         for y in range(self.rows):
             for x in range(self.columns):
-                tile = self.floor_tiles[(x + y) % len(self.floor_tiles)]
-                self._blit_tile(tile, x, y)
+                self._blit_tile(self.floor_tile, x, y)
 
         door_width_tiles = 2
         door_start = (self.columns - door_width_tiles) // 2
