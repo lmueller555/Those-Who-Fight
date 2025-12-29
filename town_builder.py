@@ -579,6 +579,7 @@ class InteriorMap:
         )
         self.surface = pygame.Surface(self.map_size, pygame.SRCALPHA)
         self.colliders: list[pygame.Rect] = []
+        self.furniture_colliders: list[pygame.Rect] = []
         self.exit_rect = pygame.Rect(0, 0, 0, 0)
         self.entry_spawn = pygame.Vector2(0, 0)
         self._load_assets()
@@ -609,6 +610,61 @@ class InteriorMap:
             TILE_SIZE,
             TILE_SIZE,
         )
+        bed_sheet = SpriteSheet(
+            TOWN_ASSETS_DIR / "Buildings" / "House_Decor" / "Beds.png",
+            TILE_SIZE,
+            TILE_SIZE,
+        )
+        table_sheet = SpriteSheet(
+            TOWN_ASSETS_DIR / "Buildings" / "House_Decor" / "Tables.png",
+            TILE_SIZE,
+            TILE_SIZE,
+        )
+        chair_sheet = SpriteSheet(
+            TOWN_ASSETS_DIR / "Buildings" / "House_Decor" / "Chairs.png",
+            TILE_SIZE,
+            TILE_SIZE,
+        )
+        shelf_sheet = SpriteSheet(
+            TOWN_ASSETS_DIR / "Buildings" / "House_Decor" / "BookShelves.png",
+            TILE_SIZE,
+            TILE_SIZE,
+        )
+        drawer_sheet = SpriteSheet(
+            TOWN_ASSETS_DIR / "Buildings" / "House_Decor" / "Drawers.png",
+            TILE_SIZE,
+            TILE_SIZE,
+        )
+        decor_sheet = SpriteSheet(
+            TOWN_ASSETS_DIR / "Buildings" / "House_Decor" / "Indoor_Decor.png",
+            TILE_SIZE,
+            TILE_SIZE,
+        )
+        planter_sheet = SpriteSheet(
+            TOWN_ASSETS_DIR / "Buildings" / "House_Decor" / "Planters.png",
+            TILE_SIZE,
+            TILE_SIZE,
+        )
+        lamp_sheet = SpriteSheet(
+            TOWN_ASSETS_DIR / "Buildings" / "House_Decor" / "Standing_Lamps.png",
+            TILE_SIZE,
+            TILE_SIZE,
+        )
+        furnace_sheet = SpriteSheet(
+            TOWN_ASSETS_DIR / "Buildings" / "House_Decor" / "Furnace_Anim.png",
+            TILE_SIZE,
+            TILE_SIZE,
+        )
+        anvil_sheet = SpriteSheet(
+            TOWN_ASSETS_DIR / "Buildings" / "House_Decor" / "Anvil_Anim.png",
+            TILE_SIZE,
+            TILE_SIZE,
+        )
+        chest_sheet = SpriteSheet(
+            TOWN_ASSETS_DIR / "Buildings" / "House_Decor" / "Chest_Anim.png",
+            TILE_SIZE,
+            TILE_SIZE,
+        )
 
         self.floor_tile = self._scale_to_tile(floor_sheet.get_frame(0, 0))
         self.wall_tile = self._scale_to_tile(wall_sheet.get_frame(4, 3))
@@ -616,9 +672,66 @@ class InteriorMap:
         self.door_tile = self._scale_to_tile(floor_sheet.get_frame(6, 0))
         self.stairs_tile = self._scale_to_tile(stair_sheet.get_frame(0, 0))
         self.wall_filler = self._scale_to_tile(stone_fillers.get_frame(0, 0))
+        self.furniture = {
+            "bed_tan": self._build_sprite(bed_sheet, 0, 0, 2, 2),
+            "bed_blue": self._build_sprite(bed_sheet, 0, 2, 2, 2),
+            "bed_green": self._build_sprite(bed_sheet, 0, 4, 2, 2),
+            "bed_pink": self._build_sprite(bed_sheet, 0, 6, 2, 2),
+            "bed_yellow": self._build_sprite(bed_sheet, 0, 8, 2, 2),
+            "bed_red": self._build_sprite(bed_sheet, 0, 10, 2, 2),
+            "table_small": self._build_sprite(table_sheet, 0, 0, 2, 1),
+            "table_large": self._build_sprite(table_sheet, 0, 1, 3, 2),
+            "chair": self._build_sprite(chair_sheet, 1, 0, 1, 1),
+            "stool": self._build_sprite(chair_sheet, 6, 2, 1, 1),
+            "shelf_small": self._build_sprite(shelf_sheet, 0, 0, 1, 2),
+            "shelf_large": self._build_sprite(shelf_sheet, 1, 0, 2, 2),
+            "dresser": self._build_sprite(drawer_sheet, 0, 2, 2, 2),
+            "barrel_stack": self._build_sprite(decor_sheet, 0, 8, 2, 2),
+            "planter_box": self._build_sprite(planter_sheet, 0, 0, 2, 1),
+            "lamp": self._build_sprite(lamp_sheet, 0, 0, 1, 2),
+            "furnace": self._build_sprite(furnace_sheet, 0, 0, 1, 2),
+            "anvil": self._build_sprite(anvil_sheet, 0, 0, 1, 1),
+            "chest": self._build_sprite(chest_sheet, 0, 0, 1, 1),
+            "potted_tree": self._build_sprite(decor_sheet, 1, 6, 2, 2),
+        }
 
     def _blit_tile(self, tile: pygame.Surface, grid_x: int, grid_y: int) -> None:
         self.surface.blit(tile, (grid_x * self.tile_size, grid_y * self.tile_size))
+
+    def _build_sprite(
+        self,
+        sheet: SpriteSheet,
+        start_col: int,
+        start_row: int,
+        width_tiles: int,
+        height_tiles: int,
+    ) -> pygame.Surface:
+        surface = pygame.Surface(
+            (width_tiles * self.tile_size, height_tiles * self.tile_size),
+            pygame.SRCALPHA,
+        )
+        for y in range(height_tiles):
+            for x in range(width_tiles):
+                frame = sheet.get_frame(start_col + x, start_row + y)
+                frame = self._scale_to_tile(frame)
+                surface.blit(
+                    frame,
+                    (x * self.tile_size, y * self.tile_size),
+                )
+        return surface
+
+    def _place_furniture(
+        self,
+        sprite: pygame.Surface,
+        grid_x: int,
+        grid_y: int,
+        collidable: bool = True,
+    ) -> None:
+        top_left = (grid_x * self.tile_size, grid_y * self.tile_size)
+        self.surface.blit(sprite, top_left)
+        if collidable:
+            rect = sprite.get_rect(topleft=top_left)
+            self.furniture_colliders.append(rect)
 
     def _build_map(self) -> None:
         for y in range(self.rows):
@@ -646,6 +759,113 @@ class InteriorMap:
         mid_x = self.columns // 2
         self._blit_tile(self.wall_filler, mid_x, 1)
         self._blit_tile(self.stairs_tile, mid_x, bottom_y - 1)
+        self._build_furnishings()
+
+    def _build_furnishings(self) -> None:
+        self.furniture_colliders.clear()
+        if self.building_name == "inn":
+            self._layout_inn()
+        elif self.building_name == "blacksmith":
+            self._layout_blacksmith()
+        elif self.building_name == "house_1":
+            self._layout_house_one()
+        elif self.building_name == "house_2":
+            self._layout_house_two()
+        elif self.building_name == "house_3":
+            self._layout_house_three()
+        elif self.building_name == "house_4":
+            self._layout_house_four()
+        elif self.building_name == "house_5":
+            self._layout_house_five()
+
+    def _layout_inn(self) -> None:
+        self._place_furniture(self.furniture["table_large"], 2, 2)
+        for x in range(2, 5):
+            self._place_furniture(self.furniture["stool"], x, 4)
+        self._place_furniture(self.furniture["shelf_large"], 18, 2)
+        self._place_furniture(self.furniture["barrel_stack"], 18, 5)
+        self._place_furniture(self.furniture["chest"], 20, 5)
+
+        self._place_furniture(self.furniture["table_small"], 10, 7)
+        for x in range(10, 12):
+            self._place_furniture(self.furniture["chair"], x, 6)
+            self._place_furniture(self.furniture["chair"], x, 8)
+        self._place_furniture(self.furniture["table_small"], 13, 11)
+        for x in range(13, 15):
+            self._place_furniture(self.furniture["chair"], x, 10)
+            self._place_furniture(self.furniture["chair"], x, 12)
+
+        self._place_furniture(self.furniture["lamp"], 2, 13, collidable=False)
+        self._place_furniture(self.furniture["lamp"], 21, 13, collidable=False)
+        self._place_furniture(self.furniture["planter_box"], 17, 14)
+        self._place_furniture(self.furniture["potted_tree"], 4, 11)
+
+    def _layout_blacksmith(self) -> None:
+        self._place_furniture(self.furniture["furnace"], 3, 2)
+        self._place_furniture(self.furniture["anvil"], 5, 4)
+        self._place_furniture(self.furniture["table_large"], 9, 4)
+        self._place_furniture(self.furniture["table_small"], 13, 8)
+        self._place_furniture(self.furniture["stool"], 13, 9)
+        self._place_furniture(self.furniture["shelf_large"], 18, 2)
+        self._place_furniture(self.furniture["barrel_stack"], 18, 6)
+        self._place_furniture(self.furniture["chest"], 20, 7)
+        self._place_furniture(self.furniture["lamp"], 2, 13, collidable=False)
+
+    def _layout_house_one(self) -> None:
+        self._place_furniture(self.furniture["bed_green"], 2, 2)
+        self._place_furniture(self.furniture["dresser"], 2, 5)
+        self._place_furniture(self.furniture["table_small"], 11, 6)
+        self._place_furniture(self.furniture["chair"], 11, 5)
+        self._place_furniture(self.furniture["chair"], 12, 7)
+        self._place_furniture(self.furniture["shelf_small"], 18, 2)
+        self._place_furniture(self.furniture["chest"], 17, 6)
+        self._place_furniture(self.furniture["planter_box"], 16, 12)
+        self._place_furniture(self.furniture["lamp"], 5, 2, collidable=False)
+
+    def _layout_house_two(self) -> None:
+        self._place_furniture(self.furniture["bed_blue"], 2, 3)
+        self._place_furniture(self.furniture["shelf_small"], 16, 2)
+        self._place_furniture(self.furniture["shelf_large"], 18, 2)
+        self._place_furniture(self.furniture["table_small"], 11, 6)
+        self._place_furniture(self.furniture["chair"], 10, 6)
+        self._place_furniture(self.furniture["chair"], 12, 7)
+        self._place_furniture(self.furniture["dresser"], 2, 7)
+        self._place_furniture(self.furniture["lamp"], 6, 3, collidable=False)
+        self._place_furniture(self.furniture["planter_box"], 15, 12)
+
+    def _layout_house_three(self) -> None:
+        self._place_furniture(self.furniture["bed_red"], 2, 2)
+        self._place_furniture(self.furniture["table_large"], 9, 6)
+        self._place_furniture(self.furniture["chair"], 9, 5)
+        self._place_furniture(self.furniture["chair"], 10, 9)
+        self._place_furniture(self.furniture["chair"], 11, 5)
+        self._place_furniture(self.furniture["barrel_stack"], 17, 3)
+        self._place_furniture(self.furniture["barrel_stack"], 19, 3)
+        self._place_furniture(self.furniture["chest"], 18, 7)
+        self._place_furniture(self.furniture["shelf_small"], 20, 2)
+        self._place_furniture(self.furniture["lamp"], 5, 2, collidable=False)
+
+    def _layout_house_four(self) -> None:
+        self._place_furniture(self.furniture["bed_yellow"], 3, 2)
+        self._place_furniture(self.furniture["table_small"], 11, 5)
+        self._place_furniture(self.furniture["stool"], 10, 6)
+        self._place_furniture(self.furniture["stool"], 13, 6)
+        self._place_furniture(self.furniture["dresser"], 3, 6)
+        self._place_furniture(self.furniture["barrel_stack"], 17, 5)
+        self._place_furniture(self.furniture["shelf_large"], 18, 2)
+        self._place_furniture(self.furniture["planter_box"], 16, 12)
+        self._place_furniture(self.furniture["lamp"], 6, 2, collidable=False)
+
+    def _layout_house_five(self) -> None:
+        self._place_furniture(self.furniture["bed_pink"], 2, 3)
+        self._place_furniture(self.furniture["table_large"], 9, 5)
+        self._place_furniture(self.furniture["stool"], 9, 7)
+        self._place_furniture(self.furniture["stool"], 11, 7)
+        self._place_furniture(self.furniture["dresser"], 2, 7)
+        self._place_furniture(self.furniture["shelf_small"], 18, 2)
+        self._place_furniture(self.furniture["planter_box"], 15, 12)
+        self._place_furniture(self.furniture["potted_tree"], 4, 10)
+        self._place_furniture(self.furniture["lamp"], 6, 3, collidable=False)
 
     def _build_colliders(self) -> None:
         door_width_tiles = 2
@@ -688,6 +908,7 @@ class InteriorMap:
                     self.tile_size,
                 )
             )
+        self.colliders.extend(self.furniture_colliders)
 
     def draw(self, screen: pygame.Surface, offset: pygame.Vector2) -> None:
         screen.blit(self.surface, (-offset.x, -offset.y))
