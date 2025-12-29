@@ -413,7 +413,8 @@ class TownMap:
             return
         # Blacksmith house sprite is 10x8 tiles; the anvil sits on tile (8, 6).
         # Place the NPC in front of the anvil, shifted left toward the workbench.
-        npc_tile = pygame.Vector2(7.5, 7.5)
+        # Spawn 1 tile south of the original marker.
+        npc_tile = pygame.Vector2(7.5, 8.5)
         npc_position = pygame.Vector2(
             building_rect.left + npc_tile.x * self.tile_size,
             building_rect.top + npc_tile.y * self.tile_size,
