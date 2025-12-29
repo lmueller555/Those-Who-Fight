@@ -138,6 +138,10 @@ class Camera:
         self.map_width, self.map_height = map_size
         self.offset = pygame.Vector2(0, 0)
 
+    def center_on_map(self) -> None:
+        self.offset.x = (self.map_width - self.screen_width) / 2
+        self.offset.y = (self.map_height - self.screen_height) / 2
+
     def update(self, target_rect: pygame.Rect) -> None:
         desired_x = target_rect.centerx - self.screen_width / 2
         desired_y = target_rect.centery - self.screen_height / 2
@@ -232,7 +236,10 @@ def main() -> None:
         player.rect.clamp_ip(
             pygame.Rect(0, 0, current_map.map_size[0], current_map.map_size[1])
         )
-        camera.update(player.rect)
+        if isinstance(current_map, InteriorMap):
+            camera.center_on_map()
+        else:
+            camera.update(player.rect)
 
         screen.fill((40, 45, 55))
         current_map.draw(screen, camera.offset)
