@@ -600,16 +600,6 @@ class InteriorMap:
             TILE_SIZE,
             TILE_SIZE,
         )
-        stone_fillers = SpriteSheet(
-            TOWN_ASSETS_DIR / "Buildings" / "Houses_Interiors" / "Stone_Wall_Fillers.png",
-            TILE_SIZE,
-            TILE_SIZE,
-        )
-        stair_sheet = SpriteSheet(
-            TOWN_ASSETS_DIR / "Buildings" / "Houses_Interiors" / "Wood_Stairs.png",
-            TILE_SIZE,
-            TILE_SIZE,
-        )
         bed_sheet = SpriteSheet(
             TOWN_ASSETS_DIR / "Buildings" / "House_Decor" / "Beds.png",
             TILE_SIZE,
@@ -668,10 +658,6 @@ class InteriorMap:
 
         self.floor_tile = self._scale_to_tile(floor_sheet.get_frame(0, 0))
         self.wall_tile = self._scale_to_tile(wall_sheet.get_frame(4, 3))
-        self.corner_tile = self.wall_tile
-        self.door_tile = self._scale_to_tile(floor_sheet.get_frame(6, 0))
-        self.stairs_tile = self._scale_to_tile(stair_sheet.get_frame(0, 0))
-        self.wall_filler = self._scale_to_tile(stone_fillers.get_frame(0, 0))
         self.furniture = {
             "bed_tan": self._build_sprite(bed_sheet, 0, 0, 2, 2),
             "bed_blue": self._build_sprite(bed_sheet, 0, 2, 2, 2),
@@ -734,6 +720,7 @@ class InteriorMap:
             self.furniture_colliders.append(rect)
 
     def _build_map(self) -> None:
+        # Fill entire interior with floor tiles
         for y in range(self.rows):
             for x in range(self.columns):
                 self._blit_tile(self.floor_tile, x, y)
@@ -741,24 +728,24 @@ class InteriorMap:
         door_width_tiles = 2
         door_start = (self.columns - door_width_tiles) // 2
         bottom_y = self.rows - 1
+
+        # Top wall - full width with wooden wall tile
         for x in range(self.columns):
-            if bottom_y == self.rows - 1 and door_start <= x < door_start + door_width_tiles:
-                self._blit_tile(self.door_tile, x, bottom_y)
-                continue
-            tile = self.corner_tile if x in (0, self.columns - 1) else self.wall_tile
-            self._blit_tile(tile, x, 0)
-            self._blit_tile(tile, x, bottom_y)
+            self._blit_tile(self.wall_tile, x, 0)
 
-        for x in range(door_start, door_start + door_width_tiles):
-            self._blit_tile(self.door_tile, x, bottom_y - 1)
+        # Bottom wall - with 2-tile door opening at center
+        for x in range(self.columns):
+            if door_start <= x < door_start + door_width_tiles:
+                # Door opening - use floor tile for continuity
+                self._blit_tile(self.floor_tile, x, bottom_y)
+            else:
+                self._blit_tile(self.wall_tile, x, bottom_y)
 
+        # Side walls - full height
         for y in range(1, self.rows - 1):
             self._blit_tile(self.wall_tile, 0, y)
             self._blit_tile(self.wall_tile, self.columns - 1, y)
 
-        mid_x = self.columns // 2
-        self._blit_tile(self.wall_filler, mid_x, 1)
-        self._blit_tile(self.stairs_tile, mid_x, bottom_y - 1)
         self._build_furnishings()
 
     def _build_furnishings(self) -> None:
